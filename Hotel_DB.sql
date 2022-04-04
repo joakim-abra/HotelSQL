@@ -4,11 +4,11 @@ GO
 USE Hotel
 GO
 
-USE Population
-GO
+-- USE Population
+-- GO
 
-DROP DATABASE Hotel
-GO
+-- DROP DATABASE Hotel
+-- GO
 
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
@@ -66,7 +66,6 @@ GO
 CREATE TABLE Guest_booking(
     id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer (ID)
-
 )
 GO
 
@@ -127,8 +126,6 @@ CREATE TABLE Messages(
 GO
 
 
-
-
 CREATE TABLE Feedback(
     feedback_id INT IDENTITY PRIMARY KEY,
     comment NVARCHAR(500),
@@ -140,6 +137,7 @@ GO
 
 CREATE TABLE check_log(
 log_id INT IDENTITY PRIMARY KEY,
+booking_id INT FOREIGN KEY REFERENCES booking(booking_id),
 log_check_in DATETIME,
 log_check_out DATETIME
 )
