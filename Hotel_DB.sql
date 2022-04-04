@@ -19,6 +19,7 @@ CREATE TABLE Customer(
     is_contact BIT NOT NULL DEFAULT 0
 
 );
+GO
 
 CREATE TABLE payment_method(
 
@@ -28,6 +29,7 @@ CREATE TABLE payment_method(
 
 
 );
+GO
 
 CREATE TABLE Room(
     room_NR INT IDENTITY PRIMARY KEY,
@@ -37,12 +39,20 @@ CREATE TABLE Room(
     balcony BIT NOT NULL
 --EXTRA SÄNGAR??
 );
+GO
+
+CREATE TABLE Guest_booking(
+    id INT IDENTITY PRIMARY KEY,
+    customer_id INT FOREIGN KEY REFERENCES Customer (ID)
+
+)
+GO
 
 CREATE TABLE Booking(
     booking_id INT IDENTITY PRIMARY KEY,
     contact_id INT FOREIGN KEY REFERENCES Customer(ID),
     room_id INT FOREIGN KEY REFERENCES Room(room_NR),
-    guest_booking_id INT FOREIGN KEY REFERENCES Guest_booking (guest_booking_id),
+    guest_booking_id INT FOREIGN KEY REFERENCES Guest_booking(id),
 --- REFERENS TILL TABELL MED BOKANDE GÄSTER
 
     num_of_night INT,
@@ -54,13 +64,24 @@ CREATE TABLE Booking(
 
     prepaid BIT NOT NULL DEFAULT 0
 );
+GO
 
-CREATE TABLE Guest_booking(
-    id INT IDENTITY PRIMARY KEY,
-    customer_id INT FOREIGN KEY REFERENCES Customer (ID)
 
-)
+CREATE TABLE room_bill(
+    amount DECIMAL,
+    bill_id INT IDENTITY PRIMARY KEY,
+    --total_discount NVARCHAR(10),
 
+    payment_booking_id INT FOREIGN KEY REFERENCES Booking (booking_id)
+);
+GO
+
+CREATE TABLE Rebate(
+    rebate_id INT IDENTITY PRIMARY KEY,
+    rebate_code NVARCHAR(30),
+    rebate_amount INT
+);
+GO
 
 CREATE TABLE total_booking_bill
 (
@@ -69,27 +90,16 @@ CREATE TABLE total_booking_bill
     total_amount DECIMAL,
     rebate_id INT FOREIGN KEY REFERENCES Rebate(rebate_id)
 );
+GO
 
-CREATE TABLE room_bill(
-    amount DECIMAL,
-    bill_id INT IDENTITY PRIMARY KEY
-    --total_discount NVARCHAR(10),
-
-    payment_booking_id INT FOREIGN KEY REFERENCES Booking (booking_id)
-);
-
-CREATE TABLE Rebate(
-    rebate_id INT IDENTITY PRIMARY KEY,
-    rebate_code NVARCHAR(30),
-    rebate_amount INT
-);
 
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
-    booking_customer_id INT FOREIGN KEY REFERENCES booking(contact_id),
+    customer_id INT FOREIGN KEY REFERENCES Customer(ID),
     comment NVARCHAR(500),
 
 )
+GO
 
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
@@ -97,19 +107,21 @@ CREATE TABLE Employees(
     last_name NVARCHAR(50),
     position NVARCHAR(20)
 )
+GO
 
 
 CREATE TABLE Feedback(
     feedback_id INT IDENTITY PRIMARY KEY,
     comment NVARCHAR(500),
-    score INT (500,1),
+    score INT,
     booking INT FOREIGN KEY REFERENCES Booking(booking_id)
 
 );
+GO
 
 CREATE TABLE check_log(
 log_id INT IDENTITY PRIMARY KEY,
 log_check_in DATETIME,
 log_check_out DATETIME
 )
-
+GO
