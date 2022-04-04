@@ -14,7 +14,9 @@ CREATE TABLE Customer(
 
     email NVARCHAR(50),
 
-    phone_number INT
+    phone_number INT,
+
+    is_contact BIT NOT NULL DEFAULT 0
 
 );
 
@@ -32,20 +34,33 @@ CREATE TABLE Room(
     nr_of_beds INT,
     roomtype NVARCHAR(20),
 --RUMSTYP SOM TABELL?
-    balcony BIT
+    balcony BIT NOT NULL
 --EXTRA SÄNGAR??
 );
 
 CREATE TABLE Booking(
     booking_id INT IDENTITY PRIMARY KEY,
-    contact_id INT FOREIGN KEY REFERENCES Customer(customer_ID),
+    contact_id INT FOREIGN KEY REFERENCES Customer(ID),
     room_id INT FOREIGN KEY REFERENCES Room(room_NR),
     guest_booking_id INT FOREIGN KEY REFERENCES Guest_booking (guest_booking_id),
 --- REFERENS TILL TABELL MED BOKANDE GÄSTER
+
     num_of_night INT,
     check_in_date DATETIME,
-    check_out_date DATETIME
+    check_out_date DATETIME,
+    late_arrival_timer DATETIME,
+    --TÄNKT ATT LÖSAS MED EN TRIGGER SOM BERÄKNAR LOG_CHECK_IN - CHECK_IN IF>0
+    no_show BIT NOT NULL DEFAULT 0,
+
+    prepaid BIT NOT NULL DEFAULT 0
 );
+
+CREATE TABLE Guest_booking(
+    id INT IDENTITY PRIMARY KEY,
+    customer_id INT FOREIGN KEY REFERENCES Customer (ID)
+
+)
+
 
 CREATE TABLE total_booking_bill
 (
@@ -58,7 +73,6 @@ CREATE TABLE total_booking_bill
 CREATE TABLE room_bill(
     amount DECIMAL,
     bill_id INT IDENTITY PRIMARY KEY
-
     --total_discount NVARCHAR(10),
 
     payment_booking_id INT FOREIGN KEY REFERENCES Booking (booking_id)
@@ -70,16 +84,32 @@ CREATE TABLE Rebate(
     rebate_amount INT
 );
 
+CREATE TABLE Messages(
+    message_id INT IDENTITY PRIMARY KEY,
+    booking_customer_id INT FOREIGN KEY REFERENCES booking(contact_id),
+    comment NVARCHAR(500),
+
+)
+
+CREATE TABLE Employees(
+    employee_ID INT IDENTITY PRIMARY KEY,
+    first_name NVARCHAR(20),
+    last_name NVARCHAR(50),
+    position NVARCHAR(20)
+)
+
+
 CREATE TABLE Feedback(
-feedback_id INT IDENTITY PRIMARY KEY,
-comment NVARCHAR(100),
-
-
-
+    feedback_id INT IDENTITY PRIMARY KEY,
+    comment NVARCHAR(500),
+    score INT (500,1),
+    booking INT FOREIGN KEY REFERENCES Booking(booking_id)
 
 );
 
 CREATE TABLE check_log(
-log_id INT IDENTITY PRIMARY KEY
+log_id INT IDENTITY PRIMARY KEY,
+log_check_in DATETIME,
+log_check_out DATETIME
 )
 
