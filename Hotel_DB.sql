@@ -1,0 +1,5 @@
+CREATE DATABASE Hotel
+GO
+
+USE Hotel
+GO
