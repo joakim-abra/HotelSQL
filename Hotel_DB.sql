@@ -4,11 +4,11 @@ GO
 USE Hotel
 GO
 
-USE Population
-GO
+--USE Population
+--GO
 
-DROP DATABASE Hotel;
-GO
+--DROP DATABASE Hotel;
+--GO
 
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
@@ -20,36 +20,22 @@ GO
 
 
 CREATE TABLE Customer(
-
     ID INT IDENTITY PRIMARY KEY,
-
     first_name NVARCHAR(20),
-
     last_name NVARCHAR(50),
-
     email NVARCHAR(50),
-
     phone_number NVARCHAR(30),
-
     street_address NVARCHAR(50),
-
     city NVARCHAR(50),
-
     postal_code INT,
-
     country NVARCHAR(50),
-
     is_contact BIT NOT NULL DEFAULT 0
-
 );
 GO
 
 CREATE TABLE creditcard(
-
-    card_type_ID INT PRIMARY KEY,
-
+    card_type_ID INT IDENTITY PRIMARY KEY,
     card_type NVARCHAR(50),
-
 );
 GO
 
@@ -66,8 +52,7 @@ GO
 CREATE TABLE Guest_booking(
     id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer (ID)
-
-)
+);
 GO
 
 CREATE TABLE Booking(
@@ -76,7 +61,6 @@ CREATE TABLE Booking(
     room_id INT FOREIGN KEY REFERENCES Room(room_NR),
     guest_booking_id INT FOREIGN KEY REFERENCES Guest_booking(id),
 --- REFERENS TILL TABELL MED BOKANDE GÄSTER
-
     num_of_night INT,
     check_in_date DATETIME,
     check_out_date DATETIME,
@@ -88,12 +72,10 @@ CREATE TABLE Booking(
 );
 GO
 
-
 CREATE TABLE room_bill(
     amount DECIMAL,
     bill_id INT IDENTITY PRIMARY KEY,
     --total_discount NVARCHAR(10),
-
     payment_booking_id INT FOREIGN KEY REFERENCES Booking (booking_id)
 );
 GO
@@ -116,25 +98,19 @@ CREATE TABLE total_booking_bill
 );
 GO
 
-
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer(ID),
     comment NVARCHAR(500),
     employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID)
-
-)
+);
 GO
-
-
-
 
 CREATE TABLE Feedback(
     feedback_id INT IDENTITY PRIMARY KEY,
     comment NVARCHAR(500),
     score INT,
     booking INT FOREIGN KEY REFERENCES Booking(booking_id)
-
 );
 GO
 
@@ -142,5 +118,5 @@ CREATE TABLE check_log(
 log_id INT IDENTITY PRIMARY KEY,
 log_check_in DATETIME,
 log_check_out DATETIME
-)
+);
 GO
