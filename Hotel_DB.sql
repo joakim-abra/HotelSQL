@@ -18,6 +18,7 @@ CREATE TABLE Employees(
 );
 GO
 
+
 CREATE TABLE Customer(
     ID INT IDENTITY PRIMARY KEY,
     first_name NVARCHAR(20),
