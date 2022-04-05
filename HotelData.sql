@@ -39,3 +39,4 @@ INSERT INTO creditcard (card_type) VALUES ('Switch');
 INSERT INTO creditcard (card_type) VALUES ('Visa');
 GO
 
+

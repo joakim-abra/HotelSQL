@@ -119,3 +119,4 @@ log_check_in DATETIME,
 log_check_out DATETIME
 );
 GO
+
