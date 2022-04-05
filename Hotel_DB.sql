@@ -10,6 +10,17 @@ GO
 -- DROP DATABASE Hotel
 -- GO
 
+
+--VIEW ALLA RUM OCH TYP
+
+-- SELECT r.room_NR, rt.name, rt.nr_of_beds, rt.balcony, r.extra_bed FROM Room r
+-- INNER JOIN Room_type rt
+-- ON r.room_type_id = rt.room_type_id
+
+
+
+
+
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
     first_name NVARCHAR(20),
@@ -35,7 +46,7 @@ CREATE TABLE Customer(
 
     city NVARCHAR(50),
 
-    postal_code INT,
+    postal_code NVARCHAR(20),
 
     country NVARCHAR(50),
 
@@ -53,13 +64,19 @@ CREATE TABLE creditcard(
 );
 GO
 
+CREATE TABLE Room_type(
+    room_type_id INT IDENTITY PRIMARY KEY,
+    name NVARCHAR(30),
+    nr_of_beds INT NOT NULL DEFAULT 1,
+    balcony INT NOT NULL DEFAULT 0,
+)
+
+
+
 CREATE TABLE Room(
     room_NR INT IDENTITY PRIMARY KEY,
-    nr_of_beds INT,
-    roomtype NVARCHAR(20),
---RUMSTYP SOM TABELL?
-    balcony BIT NOT NULL
---EXTRA SÄNGAR??
+    room_type_id INT FOREIGN KEY REFERENCES Room_type(room_type_id),
+    extra_bed INT NOT NULL DEFAULT 0
 );
 GO
 
@@ -68,6 +85,13 @@ CREATE TABLE Guest_booking(
     customer_id INT FOREIGN KEY REFERENCES Customer (ID)
 )
 GO
+
+-- CREATE TABLE Rooms_booked(
+--     rooms_id INT IDENTITY PRIMARY KEY,
+
+-- )
+
+
 
 CREATE TABLE Booking(
     booking_id INT IDENTITY PRIMARY KEY,
