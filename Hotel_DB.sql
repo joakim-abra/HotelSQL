@@ -7,7 +7,7 @@ GO
 USE Population
 GO
 
-DROP DATABASE Hotel
+DROP DATABASE Hotel;
 GO
 
 CREATE TABLE Employees(
