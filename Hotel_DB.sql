@@ -58,8 +58,8 @@ CREATE TABLE Room(
     nr_of_beds INT,
     roomtype NVARCHAR(20),
 --RUMSTYP SOM TABELL?
-    balcony BIT NOT NULL
---EXTRA SÄNGAR??
+    balcony BIT NOT NULL,
+    number_of_extra_beds INT DEFAULT 0
 );
 GO
 
