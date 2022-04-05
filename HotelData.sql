@@ -42,7 +42,7 @@ GO
 
 
 
-=======
+-- Rabatt
 insert into discount (discount_code, discount_amount) values ('Summer20', 20);
 insert into discount (discount_code, discount_amount) values ('Autumn20', 20);
 insert into discount (discount_code, discount_amount) values ('Spring20', 20);
