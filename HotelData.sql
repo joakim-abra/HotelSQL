@@ -1,6 +1,7 @@
 USE Hotel;
 GO
 
+<<<<<<< HEAD
 
 --ROOM TYPES 1-3
 INSERT INTO Room_type VALUES
@@ -417,6 +418,9 @@ GO
 
 
 --EMPLOYEES
+=======
+-- Anställda
+>>>>>>> 44e88601db739ee6fc47d73aa7436e92828b0e5b
 insert into Employees (first_name, last_name, position) values ('Kim', 'Grellier', 'Reception');
 insert into Employees (first_name, last_name, position) values ('Susana', 'Petrus', 'Booking manager');
 insert into Employees (first_name, last_name, position) values ('Kiersten', 'Gravet', 'Reception');
@@ -427,9 +431,14 @@ insert into Employees (first_name, last_name, position) values ('Silvia', 'Eatho
 insert into Employees (first_name, last_name, position) values ('Delmore', 'Toffoloni', 'Reception');
 insert into Employees (first_name, last_name, position) values ('Aubrey', 'Willey', 'Reception');
 insert into Employees (first_name, last_name, position) values ('Constantin', 'Moffat', 'Reception');
+<<<<<<< HEAD
 GO
 
 --CUSTOMERS
+=======
+
+-- Gäster
+>>>>>>> 44e88601db739ee6fc47d73aa7436e92828b0e5b
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Lane', 'Bakes', 'lbakes0@aboutads.info', '837-379-8776', '80 Reindahl Place', 'Singaparna', null, 'Indonesia');
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Marty', 'Ovanesian', 'movanesian1@eventbrite.com', '210-102-5720', '3 Westerfield Court', 'Song', '54120', 'Thailand');
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Barbra', 'Rothery', 'brothery2@businessweek.com', '587-509-8096', '14 Haas Junction', 'Longtian', null, 'China');
@@ -440,6 +449,7 @@ insert into Customer (first_name, last_name, email, phone_number, street_address
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Shanda', 'Cubbit', 'scubbit7@bloomberg.com', '667-243-8901', '1 Birchwood Park', 'Dong Charoen', '66210', 'Thailand');
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Roxanna', 'Shury', 'rshury8@examiner.com', '739-915-2202', '4 Crescent Oaks Plaza', 'Devin', '4815', 'Bulgaria');
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Anastasie', 'Sabatini', 'asabatini9@toplist.cz', '905-889-2959', '2333 Holmberg Pass', 'Volokonovka', '457151', 'Russia');
+<<<<<<< HEAD
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Dori', 'Ofen', 'dofen0@mozilla.com', '+380 392 990 9688', '5100 Moose Terrace', null, 'Piskivka', 'Ukraine');
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Cynthea', 'Whenham', 'cwhenham1@usatoday.com', '+7 478 529 8299', '57 Fairfield Way', '140225', 'Konobeyevo', 'Russia');
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Vick', 'Thorley', 'vthorley2@bbb.org', '+212 517 996 9483', '4 International Street', null, 'Mhamid', 'Morocco');
@@ -640,4 +650,35 @@ insert into Customer (first_name, last_name, email, phone_number, street_address
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Paquito', 'Croizier', 'pcroizier5h@mediafire.com', '+55 875 433 8964', '1212 Harbort Place', '58750-000', 'Juru', 'Brazil');
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Victoir', 'Baumann', 'vbaumann5i@usatoday.com', '+62 243 155 4635', '4 Thompson Trail', null, 'Banjar Medura', 'Indonesia');
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Delila', 'Kenrick', 'dkenrick5j@storify.com', '+7 211 432 3010', '18423 Eliot Avenue', '184021', 'Zelenoborskiy', 'Russia');
+=======
+
+
+-- Kreditkort
+INSERT INTO creditcard (card_type) VALUES ('American Express');
+INSERT INTO creditcard (card_type) VALUES ('Bankcard');
+INSERT INTO creditcard (card_type) VALUES ('Diners Club');
+INSERT INTO creditcard (card_type) VALUES ('InstaPayment');
+INSERT INTO creditcard (card_type) VALUES ('JCB');
+INSERT INTO creditcard (card_type) VALUES ('Laser');
+INSERT INTO creditcard (card_type) VALUES ('Mastercard');
+INSERT INTO creditcard (card_type) VALUES ('Mestro');
+INSERT INTO creditcard (card_type) VALUES ('Solo');
+INSERT INTO creditcard (card_type) VALUES ('Switch');
+INSERT INTO creditcard (card_type) VALUES ('Visa');
+GO
+
+
+
+=======
+insert into discount (discount_code, discount_amount) values ('Summer20', 20);
+insert into discount (discount_code, discount_amount) values ('Autumn20', 20);
+insert into discount (discount_code, discount_amount) values ('Spring20', 20);
+insert into discount (discount_code, discount_amount) values ('Winter20', 20);
+insert into discount (discount_code, discount_amount) values ('Birthday10', 10);
+insert into discount (discount_code, discount_amount) values ('Employe50', 50);
+insert into discount (discount_code, discount_amount) values ('Weekend15', 15);
+insert into discount (discount_code, discount_amount) values ('Company5', 5);
+insert into discount (discount_code, discount_amount) values ('Owner100', 100);
+insert into discount (discount_code, discount_amount) values ('Superdeal50', 50);
+>>>>>>> 44e88601db739ee6fc47d73aa7436e92828b0e5b
 
