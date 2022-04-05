@@ -97,10 +97,10 @@ CREATE TABLE room_bill(
 );
 GO
 
-CREATE TABLE Rebate(
-    rebate_id INT IDENTITY PRIMARY KEY,
-    rebate_code NVARCHAR(30),
-    rebate_amount INT
+CREATE TABLE discount(
+    discount_id INT IDENTITY PRIMARY KEY,
+    discount_code NVARCHAR(30),
+    discount_amount INT
 );
 GO
 

@@ -18,3 +18,13 @@ insert into Customer (first_name, last_name, email, phone_number, street_address
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Shanda', 'Cubbit', 'scubbit7@bloomberg.com', '667-243-8901', '1 Birchwood Park', 'Dong Charoen', '66210', 'Thailand');
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Roxanna', 'Shury', 'rshury8@examiner.com', '739-915-2202', '4 Crescent Oaks Plaza', 'Devin', '4815', 'Bulgaria');
 insert into Customer (first_name, last_name, email, phone_number, street_address, city, postal_code, country) values ('Anastasie', 'Sabatini', 'asabatini9@toplist.cz', '905-889-2959', '2333 Holmberg Pass', 'Volokonovka', '457151', 'Russia');
+insert into discount (discount_code, discount_amount) values ('Summerr20', 20);
+insert into discount (discount_code, discount_amount) values ('Autumn20', 20);
+insert into discount (discount_code, discount_amount) values ('Spring20', 20);
+insert into discount (discount_code, discount_amount) values ('Winter20', 20);
+insert into discount (discount_code, discount_amount) values ('Birthday10', 10);
+insert into discount (discount_code, discount_amount) values ('Employe50', 50);
+insert into discount (discount_code, discount_amount) values ('Weekend15', 15);
+insert into discount (discount_code, discount_amount) values ('Company5', 5);
+insert into discount (discount_code, discount_amount) values ('Owner100', 100);
+insert into discount (discount_code, discount_amount) values ('Superdeal50', 50);
