@@ -15,7 +15,7 @@ CREATE TABLE Employees(
     first_name NVARCHAR(20),
     last_name NVARCHAR(50),
     position NVARCHAR(20)
-)
+);
 GO
 
 
