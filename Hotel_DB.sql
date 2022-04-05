@@ -4,11 +4,19 @@ GO
 USE Hotel
 GO
 
+
 --USE Population
 --GO
 
 --DROP DATABASE Hotel;
 --GO
+=======
+-- USE Population
+-- GO
+
+-- DROP DATABASE Hotel
+-- GO
+
 
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
@@ -44,15 +52,19 @@ CREATE TABLE Room(
     nr_of_beds INT,
     roomtype NVARCHAR(20),
 --RUMSTYP SOM TABELL?
-    balcony BIT NOT NULL
---EXTRA SÄNGAR??
+    balcony BIT NOT NULL,
+    number_of_extra_beds INT DEFAULT 0
 );
 GO
 
 CREATE TABLE Guest_booking(
     id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer (ID)
+
 );
+=======
+)
+
 GO
 
 CREATE TABLE Booking(
@@ -80,10 +92,10 @@ CREATE TABLE room_bill(
 );
 GO
 
-CREATE TABLE Rebate(
-    rebate_id INT IDENTITY PRIMARY KEY,
-    rebate_code NVARCHAR(30),
-    rebate_amount INT
+CREATE TABLE discount(
+    discount_id INT IDENTITY PRIMARY KEY,
+    discount_code NVARCHAR(30),
+    discount_amount INT
 );
 GO
 
@@ -106,6 +118,7 @@ CREATE TABLE Messages(
 );
 GO
 
+
 CREATE TABLE Feedback(
     feedback_id INT IDENTITY PRIMARY KEY,
     comment NVARCHAR(500),
@@ -116,6 +129,7 @@ GO
 
 CREATE TABLE check_log(
 log_id INT IDENTITY PRIMARY KEY,
+booking_id INT FOREIGN KEY REFERENCES booking(booking_id),
 log_check_in DATETIME,
 log_check_out DATETIME
 );
