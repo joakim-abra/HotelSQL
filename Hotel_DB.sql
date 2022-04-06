@@ -153,10 +153,10 @@ GO
 
 CREATE TABLE Feedback(
     feedback_id INT IDENTITY PRIMARY KEY,
+    reviewer NVARCHAR(50),
     comment NVARCHAR(500),
     score INT,
-    booking INT FOREIGN KEY REFERENCES Booking(booking_id)
-
+ 
 );
 GO
 
