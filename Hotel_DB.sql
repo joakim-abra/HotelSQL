@@ -19,8 +19,6 @@ GO
 
 
 
-
-
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
     first_name NVARCHAR(20),
@@ -55,6 +53,14 @@ CREATE TABLE Customer(
 );
 GO
 
+CREATE TABLE payment_methods(
+    method_id INT IDENTITY PRIMARY KEY,
+    method_name NVARCHAR(20)
+
+)
+
+
+
 CREATE TABLE creditcard(
 
     card_type_ID INT PRIMARY KEY,
@@ -69,15 +75,17 @@ CREATE TABLE Room_type(
     name NVARCHAR(30),
     nr_of_beds INT NOT NULL DEFAULT 1,
     balcony INT NOT NULL DEFAULT 0,
+    price DECIMAL NOT NULL,
+    description NVARCHAR(300)
 )
 
 
 
 CREATE TABLE Room(
     room_NR INT IDENTITY PRIMARY KEY,
-    room_type_id INT FOREIGN KEY REFERENCES Room_type(room_type_id),
-    extra_bed INT NOT NULL DEFAULT 0
-
+    room_room_type_id INT FOREIGN KEY REFERENCES Room_type(room_type_id),
+    floor INT,
+    room_price DECIMAL
 );
 GO
 
@@ -100,7 +108,7 @@ CREATE TABLE Booking(
     room_id INT FOREIGN KEY REFERENCES Room(room_NR),
     guest_booking_id INT FOREIGN KEY REFERENCES Guest_booking(id),
 --- REFERENS TILL TABELL MED BOKANDE GÄSTER
-
+    extra_bed INT NOT NULL DEFAULT 0,
     num_of_night INT,
     check_in_date DATETIME,
     check_out_date DATETIME,
@@ -134,7 +142,7 @@ CREATE TABLE total_booking_bill
     id INT IDENTITY PRIMARY KEY,
     room_bill_id INT FOREIGN KEY REFERENCES room_bill(bill_id),
     total_amount DECIMAL,
-    rebate_id INT FOREIGN KEY REFERENCES Rebate(rebate_id),
+    discount_id INT FOREIGN KEY REFERENCES discount(discount_id),
     card_ID INT FOREIGN KEY REFERENCES creditcard(card_type_ID),
     card_number INT
 );
