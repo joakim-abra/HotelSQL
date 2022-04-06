@@ -151,10 +151,9 @@ GO
 
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
-    customer_id INT FOREIGN KEY REFERENCES Customer(ID),
+    booking_ref INT FOREIGN KEY REFERENCES Booking(booking_id),
     comment NVARCHAR(500),
-    employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID)
-
+    date_ DATETIME DEFAULT GETDATE()
 )
 GO
 
