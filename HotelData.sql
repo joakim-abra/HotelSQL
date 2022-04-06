@@ -729,3 +729,16 @@ INSERT INTO Feedback (reviewer, comment, score) VALUES ('Uncle Deadly', 'Comfort
 INSERT INTO Feedback (reviewer, comment, score) VALUES ('Waldorf', 'Extremly unfrienfly service at arrival. Decent room but far from the standard that was expected based on rating.', 1);
 GO
 
+
+--Meddelanden
+insert into Messages (booking_ref, comment, date_) values (1, 'En extrasäng', '2021-11-06 13:48:48');
+insert into Messages (booking_ref, comment, date_) values (2, 'bla bla', '2021-05-18 21:18:20');
+insert into Messages (booking_ref, comment, date_) values (3, 'Checkar in efter 13.00', '2022-01-20 13:29:16');
+insert into Messages (booking_ref, comment, date_) values (4, 'Allergisk mot hundar', '2021-04-17 14:46:41');
+insert into Messages (booking_ref, comment, date_) values (5, 'Väckning 07.00', '2021-08-26 23:45:16');
+insert into Messages (booking_ref, comment, date_) values (6, 'Extra städning', '2021-06-26 09:06:25');
+insert into Messages (booking_ref, comment, date_) values (7, 'Vill ha två extrasängar', '2022-03-14 00:50:53');
+insert into Messages (booking_ref, comment, date_) values (8, 'Klagar på oljud', '2022-02-13 06:31:22');
+insert into Messages (booking_ref, comment, date_) values (9, 'Stör ej', '2022-03-12 21:03:10');
+insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent', '2021-04-19 16:58:14');
+INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
