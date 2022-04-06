@@ -667,3 +667,32 @@ insert into discount (discount_code, discount_amount) values ('Weekend15', 15);
 insert into discount (discount_code, discount_amount) values ('Company5', 5);
 insert into discount (discount_code, discount_amount) values ('Owner100', 100);
 insert into discount (discount_code, discount_amount) values ('Superdeal50', 50);
+
+
+-- Feedback
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Kermit the Frog', 'Nice hotel. Staff were polite helpful and friendly.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Miss Piggy', 'Good location, nice balcony.', 4);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Fozzie Bear', 'Do not recommend, rude staff, no room service.', 1);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Gonzo', 'the hotel has an EXCELENT location the rooms are comfortable a very functional hotel if you are planning to stay 2-3 day here.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Rowlf the Dog', 'The bed was uneven and horrible to sleep on', 2);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Scooter', 'The bathrooms is not comfortable and they don''t putting soap.', 2);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Animal', 'I entered my room I noticed no toiletries in the bathroom and a dirty cup on the sink. Told management and after explaining my concerns I asked 
+if I should rate the hotel now or wait until they addressed my concerns. No find another, there are many small hotels just blocks away.', 1);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Pepe the King Prawn', 'It was a modern room in an old building. Very nice. Got the best of both worlds.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Rizzo the Rat', 'Nice and cleanRecently renewedVery convenient position', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Walter', 'Too many things in poor state of repair.', 2);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('', 'If you look at the superior room photo you will see a private spa and hottub. We also rang after booking room and asked about the spa, 
+they said its not free i said thats fine i will pay extra. but on the day we arrived we did not get a private spa, they said they were fully booked. Apart from that it was ok. 
+The TV stopped working first evening but was fixed next afternoon. breakfast was just ok nothing special, didnt like the scrambled eggs.', 3);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Dr. Bunsen Honeydew', 'Location, is good also luggage hold, and nce staff', 4);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Beaker', 'Outstanding. Very convenient. Only thing they should do is put two extra hooks on the back of the bathroom door. Cheap and easy, and nice for customers.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Sam Eagle', 'Very nice hotel. Very Clean and the staff is very pleasant and helpful. We are from California so I couldn’t resist! Glad I booked it. Would stay there again.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Statler', 'Clean, comfortable and very friendly/helpful staff!', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('The Swedish Chef', 'Mattress and dovet smelt of fish upon arrival. We had to move room as a result. Bar staff very slow. That being said, good value for money, great location. 
+Shame the minor things let the hotel down', 3);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Camilla the Chicken', 'A wonderful hotel which was clean comfortable and close to all the major sites.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Bobo the Bear', 'modern hotel with quick check in and check out. comfortable bed. overall great stay.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Uncle Deadly', 'Comfortable beds, big bathroom. Great location, closed to center.', 5);
+INSERT INTO Feedback (reviewer, comment, score) VALUES ('Waldorf', 'Extremly unfrienfly service at arrival. Decent room but far from the standard that was expected based on rating.', 1);
+GO
+
