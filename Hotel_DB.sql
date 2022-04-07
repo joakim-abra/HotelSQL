@@ -4,11 +4,11 @@ GO
 USE Hotel
 GO
 
-USE demoday2;
-GO
+--USE demoday2;
+--GO
 
-DROP DATABASE Hotel
-GO
+--DROP DATABASE Hotel
+--GO
 
 
 --VIEW ALLA RUM OCH TYP
