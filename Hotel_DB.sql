@@ -4,7 +4,7 @@ GO
 USE Hotel
 GO
 
--- USE Population
+-- USE demoday2;
 -- GO
 
 -- DROP DATABASE Hotel
@@ -29,46 +29,36 @@ GO
 
 
 CREATE TABLE Customer(
-
     ID INT IDENTITY PRIMARY KEY,
-
     first_name NVARCHAR(20),
-
     last_name NVARCHAR(50),
-
     email NVARCHAR(50),
-
     phone_number NVARCHAR(30),
-
     street_address NVARCHAR(50),
-
     city NVARCHAR(50),
-
     postal_code NVARCHAR(20),
-
     country NVARCHAR(50),
-
     is_contact BIT NOT NULL DEFAULT 0
-
 );
 GO
 
 CREATE TABLE payment_methods(
     method_id INT IDENTITY PRIMARY KEY,
     method_name NVARCHAR(20)
-
-)
-
-
-
-CREATE TABLE creditcard(
-
-    card_type_ID INT PRIMARY KEY,
-
-    card_type NVARCHAR(50),
-
 );
 GO
+
+
+
+-- CREATE TABLE creditcard(
+
+--     card_type_ID INT PRIMARY KEY,
+
+--     card_type NVARCHAR(50),
+
+-- );
+-- GO
+
 
 CREATE TABLE Room_type(
     room_type_id INT IDENTITY PRIMARY KEY,
@@ -77,7 +67,8 @@ CREATE TABLE Room_type(
     balcony INT NOT NULL DEFAULT 0,
     price DECIMAL NOT NULL,
     description NVARCHAR(300)
-)
+);
+GO
 
 
 
@@ -91,21 +82,24 @@ GO
 
 CREATE TABLE Guest_booking(
     id INT IDENTITY PRIMARY KEY,
-    customer_id INT FOREIGN KEY REFERENCES Customer (ID)
-)
+    customer_id INT FOREIGN KEY REFERENCES Customer (ID),
+    belongs_to_booking_id INT 
+);
 GO
 
--- CREATE TABLE Rooms_booked(
---     rooms_id INT IDENTITY PRIMARY KEY,
-
--- )
-
-
+CREATE TABLE Rooms_booked(
+    booked_rooms_id INT IDENTITY PRIMARY KEY,
+    room_id INT FOREIGN KEY REFERENCES Room(room_NR),
+    room_belongs_to_booking_id INT,
+    number_of_guests INT
+);
+GO
 
 CREATE TABLE Booking(
     booking_id INT IDENTITY PRIMARY KEY,
     contact_id INT FOREIGN KEY REFERENCES Customer(ID),
-    room_id INT FOREIGN KEY REFERENCES Room(room_NR),
+    --room_id INT FOREIGN KEY REFERENCES Room(room_NR),
+    rooms_booked_id INT FOREIGN KEY REFERENCES Rooms_booked(booked_rooms_id), 
     guest_booking_id INT FOREIGN KEY REFERENCES Guest_booking(id),
 --- REFERENS TILL TABELL MED BOKANDE GÄSTER
     extra_bed INT NOT NULL DEFAULT 0,
@@ -119,6 +113,9 @@ CREATE TABLE Booking(
     prepaid BIT NOT NULL DEFAULT 0
 );
 GO
+
+
+
 
 
 CREATE TABLE room_bill(
@@ -143,18 +140,20 @@ CREATE TABLE total_booking_bill
     room_bill_id INT FOREIGN KEY REFERENCES room_bill(bill_id),
     total_amount DECIMAL,
     discount_id INT FOREIGN KEY REFERENCES discount(discount_id),
-    card_ID INT FOREIGN KEY REFERENCES creditcard(card_type_ID),
-    card_number INT
+    selected_payment_method INT FOREIGN KEY REFERENCES payment_methods(method_id),
+    reference_number INT -- fakturanummer, kreditkortsnummer o.s.v. Null om t.ex. kontantbetalning har valts.
+    
 );
 GO
 
 
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
-    booking_ref INT FOREIGN KEY REFERENCES Booking(booking_id),
+    customer_id INT FOREIGN KEY REFERENCES Customer(ID),
     comment NVARCHAR(500),
-    date_ DATETIME DEFAULT GETDATE()
-)
+    employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID)
+
+);
 GO
 
 
@@ -162,8 +161,7 @@ CREATE TABLE Feedback(
     feedback_id INT IDENTITY PRIMARY KEY,
     reviewer NVARCHAR(50),
     comment NVARCHAR(500),
-    score INT,
- 
+    score INT
 );
 GO
 
@@ -172,5 +170,5 @@ log_id INT IDENTITY PRIMARY KEY,
 booking_id INT FOREIGN KEY REFERENCES booking(booking_id),
 log_check_in DATETIME,
 log_check_out DATETIME
-)
+);
 GO
