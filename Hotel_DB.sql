@@ -80,21 +80,7 @@ CREATE TABLE Room(
 );
 GO
 
-CREATE TABLE Guest_booking(
-    id INT IDENTITY PRIMARY KEY,
-    customer_id INT FOREIGN KEY REFERENCES Customer (ID),
-    belongs_to_booking_id INT 
-);
-GO
-
-CREATE TABLE Rooms_booked(
-    booked_rooms_id INT IDENTITY PRIMARY KEY,
-    room_id INT FOREIGN KEY REFERENCES Room(room_NR),
-    room_belongs_to_booking_id INT,
-    number_of_guests INT
-);
-GO
-
+/*
 CREATE TABLE Booking(
     booking_id INT IDENTITY PRIMARY KEY,
     contact_id INT FOREIGN KEY REFERENCES Customer(ID),
@@ -113,10 +99,53 @@ CREATE TABLE Booking(
     prepaid BIT NOT NULL DEFAULT 0
 );
 GO
+*/
 
+CREATE TABLE Booking(
+    booking_id INT IDENTITY PRIMARY KEY,
+    contact_id INT FOREIGN KEY REFERENCES Customer(ID),
+--- REFERENS TILL TABELL MED BOKANDE GÄSTER
+    num_of_night INT,
+    check_in_date DATETIME,
+    check_out_date DATETIME,
+    late_arrival_timer DATETIME,
+    --TÄNKT ATT LÖSAS MED EN TRIGGER SOM BERÄKNAR LOG_CHECK_IN - CHECK_IN IF>0
+    no_show BIT NOT NULL DEFAULT 0,
+    employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
+    prepaid BIT NOT NULL DEFAULT 0
+);
+GO
 
+-- CREATE TABLE Guest_booking(
+--     id INT IDENTITY PRIMARY KEY,
+--     customer_id INT FOREIGN KEY REFERENCES Customer (ID),
+--     belongs_to_booking_id INT 
+-- );
+-- GO
 
+CREATE TABLE Guest_booking(
+    id INT IDENTITY PRIMARY KEY,
+    customer_id INT FOREIGN KEY REFERENCES Customer (ID),
+    belongs_to_booking_id INT FOREIGN KEY REFERENCES Booking(booking_id)
+);
+GO
 
+-- CREATE TABLE Rooms_booked(
+--     booked_rooms_id INT IDENTITY PRIMARY KEY,
+--     room_id INT FOREIGN KEY REFERENCES Room(room_NR),
+--     room_belongs_to_booking_id INT,
+--     number_of_guests INT
+-- );
+-- GO
+
+CREATE TABLE Rooms_booked(
+    booked_rooms_id INT IDENTITY PRIMARY KEY,
+    room_id INT FOREIGN KEY REFERENCES Room(room_NR),
+    room_belongs_to_booking_id INT FOREIGN KEY REFERENCES Booking(booking_id),
+    extra_bed INT NOT NULL DEFAULT 0,
+    number_of_guests INT
+);
+GO
 
 CREATE TABLE room_bill(
     amount DECIMAL,
