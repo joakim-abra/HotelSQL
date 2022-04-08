@@ -69,9 +69,19 @@ GO
 
 
 -- TRIGGERS
-
-
-
+CREATE TRIGGER late_arrival
+ON check_log
+FOR INSERT
+AS
+BEGIN
+    IF ((SELECT log_check_in FROM inserted)-(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))>0)
+        BEGIN
+            UPDATE Booking
+            SET late_arrival_timer = (DATEDIFF (hour, (SELECT log_check_in FROM inserted),(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))))
+            WHERE booking_id = (SELECT i.booking_id FROM inserted i)
+        END
+END   
+GO     
 
 -- VIEWS
 
