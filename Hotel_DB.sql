@@ -38,7 +38,6 @@ CREATE TABLE Customer(
     city NVARCHAR(50),
     postal_code NVARCHAR(20),
     country NVARCHAR(50),
-    is_contact BIT NOT NULL DEFAULT 0
 );
 GO
 
@@ -126,7 +125,7 @@ GO
 CREATE TABLE Guest_booking(
     id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer (ID),
-    belongs_to_booking_id INT FOREIGN KEY REFERENCES Booking(booking_id)
+    belongs_to_booking_id INT FOREIGN KEY REFERENCES Booking(booking_id),
 );
 GO
 
@@ -180,7 +179,9 @@ CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer(ID),
     comment NVARCHAR(500),
-    employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID)
+    employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
+    booking_ref INT FOREIGN KEY REFERENCES booking(booking_id),
+    date_ DATETIME DEFAULT GETDATE()
 
 );
 GO
