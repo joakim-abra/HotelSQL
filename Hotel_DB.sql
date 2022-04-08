@@ -4,11 +4,11 @@ GO
 USE Hotel
 GO
 
---USE demoday2;
---GO
+-- USE demoday2;
+-- GO
 
---DROP DATABASE Hotel
---GO
+-- DROP DATABASE Hotel
+-- GO
 
 
 --VIEW ALLA RUM OCH TYP
@@ -146,33 +146,34 @@ CREATE TABLE Rooms_booked(
 );
 GO
 
-CREATE TABLE room_bill(
-    amount DECIMAL,
-    bill_id INT IDENTITY PRIMARY KEY,
-    --total_discount NVARCHAR(10),
-
-    payment_booking_id INT FOREIGN KEY REFERENCES Booking (booking_id)
-);
-GO
-
 CREATE TABLE discount(
     discount_id INT IDENTITY PRIMARY KEY,
     discount_code NVARCHAR(30),
-    discount_amount INT
+    discount_amount DECIMAL
 );
 GO
+
+CREATE TABLE room_bill(
+    amount DECIMAL,
+    bill_id INT IDENTITY PRIMARY KEY,
+    room_discount_id INT FOREIGN KEY REFERENCES discount (discount_id),
+    booked_room_ID INT FOREIGN KEY REFERENCES rooms_booked(booked_rooms_id)
+);
+GO
+
+
 
 CREATE TABLE total_booking_bill
 (
     id INT IDENTITY PRIMARY KEY,
-    room_bill_id INT FOREIGN KEY REFERENCES room_bill(bill_id),
     total_amount DECIMAL,
-    discount_id INT FOREIGN KEY REFERENCES discount(discount_id),
     selected_payment_method INT FOREIGN KEY REFERENCES payment_methods(method_id),
-    reference_number INT -- fakturanummer, kreditkortsnummer o.s.v. Null om t.ex. kontantbetalning har valts.
-    
+    reference_number INT, -- fakturanummer, kreditkortsnummer o.s.v. Null om t.ex. kontantbetalning har valts.
+    booking_id_bill INT  FOREIGN KEY REFERENCES Booking(booking_id)
 );
 GO
+
+
 
 
 CREATE TABLE Messages(
