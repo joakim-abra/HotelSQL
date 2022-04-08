@@ -663,19 +663,7 @@ insert into Customer (first_name, last_name, email, phone_number, street_address
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Paquito', 'Croizier', 'pcroizier5h@mediafire.com', '+55 875 433 8964', '1212 Harbort Place', '58750-000', 'Juru', 'Brazil');
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Victoir', 'Baumann', 'vbaumann5i@usatoday.com', '+62 243 155 4635', '4 Thompson Trail', null, 'Banjar Medura', 'Indonesia');
 insert into Customer (first_name, last_name, email, phone_number, street_address, postal_code, city, country) values ('Delila', 'Kenrick', 'dkenrick5j@storify.com', '+7 211 432 3010', '18423 Eliot Avenue', '184021', 'Zelenoborskiy', 'Russia');
--- Kreditkort
-INSERT INTO creditcard (card_type) VALUES ('American Express');
-INSERT INTO creditcard (card_type) VALUES ('Bankcard');
-INSERT INTO creditcard (card_type) VALUES ('Diners Club');
-INSERT INTO creditcard (card_type) VALUES ('InstaPayment');
-INSERT INTO creditcard (card_type) VALUES ('JCB');
-INSERT INTO creditcard (card_type) VALUES ('Laser');
-INSERT INTO creditcard (card_type) VALUES ('Mastercard');
-INSERT INTO creditcard (card_type) VALUES ('Mestro');
-INSERT INTO creditcard (card_type) VALUES ('Solo');
-INSERT INTO creditcard (card_type) VALUES ('Switch');
-INSERT INTO creditcard (card_type) VALUES ('Visa');
-GO
+
 
 --Betalmetoder
 
@@ -688,16 +676,17 @@ INSERT INTO payment_methods (method_name) VALUES ('Resecheck')
 
 
 -- Rabatt
-insert into discount (discount_code, discount_amount) values ('Summer20', 20);
-insert into discount (discount_code, discount_amount) values ('Autumn20', 20);
-insert into discount (discount_code, discount_amount) values ('Spring20', 20);
-insert into discount (discount_code, discount_amount) values ('Winter20', 20);
-insert into discount (discount_code, discount_amount) values ('Birthday10', 10);
-insert into discount (discount_code, discount_amount) values ('Employe50', 50);
-insert into discount (discount_code, discount_amount) values ('Weekend15', 15);
-insert into discount (discount_code, discount_amount) values ('Company5', 5);
-insert into discount (discount_code, discount_amount) values ('Owner100', 100);
-insert into discount (discount_code, discount_amount) values ('Superdeal50', 50);
+INSERT INTO discount (discount_code, discount_amount) values ('default', 0);
+insert into discount (discount_code, discount_amount) values ('Summer20', 0.2);
+insert into discount (discount_code, discount_amount) values ('Autumn20', 0.2);
+insert into discount (discount_code, discount_amount) values ('Spring20', 0.2);
+insert into discount (discount_code, discount_amount) values ('Winter20', 0.2);
+insert into discount (discount_code, discount_amount) values ('Birthday10', 0.1);
+insert into discount (discount_code, discount_amount) values ('Employe50', 0.5);
+insert into discount (discount_code, discount_amount) values ('Weekend15', 0.15);
+insert into discount (discount_code, discount_amount) values ('Company5', 0.5);
+insert into discount (discount_code, discount_amount) values ('Owner100', 1);
+insert into discount (discount_code, discount_amount) values ('Superdeal50', 0.5);
 
 
 -- Feedback
@@ -725,21 +714,6 @@ INSERT INTO Feedback (reviewer, comment, score) VALUES ('Camilla the Chicken', '
 INSERT INTO Feedback (reviewer, comment, score) VALUES ('Bobo the Bear', 'modern hotel with quick check in and check out. comfortable bed. overall great stay.', 5);
 INSERT INTO Feedback (reviewer, comment, score) VALUES ('Uncle Deadly', 'Comfortable beds, big bathroom. Great location, closed to center.', 5);
 INSERT INTO Feedback (reviewer, comment, score) VALUES ('Waldorf', 'Extremly unfrienfly service at arrival. Decent room but far from the standard that was expected based on rating.', 1);
-GO
-
-
---Meddelanden
-insert into Messages (booking_ref, comment, date_) values (1, 'En extrasäng', '2021-11-06 13:48:48');
-insert into Messages (booking_ref, comment, date_) values (2, 'bla bla', '2021-05-18 21:18:20');
-insert into Messages (booking_ref, comment, date_) values (3, 'Checkar in efter 13.00', '2022-01-20 13:29:16');
-insert into Messages (booking_ref, comment, date_) values (4, 'Allergisk mot hundar', '2021-04-17 14:46:41');
-insert into Messages (booking_ref, comment, date_) values (5, 'Väckning 07.00', '2021-08-26 23:45:16');
-insert into Messages (booking_ref, comment, date_) values (6, 'Extra städning', '2021-06-26 09:06:25');
-insert into Messages (booking_ref, comment, date_) values (7, 'Vill ha två extrasängar', '2022-03-14 00:50:53');
-insert into Messages (booking_ref, comment, date_) values (8, 'Klagar på oljud', '2022-02-13 06:31:22');
-insert into Messages (booking_ref, comment, date_) values (9, 'Stör ej', '2022-03-12 21:03:10');
-insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent', '2021-04-19 16:58:14');
-INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
 GO
 
 
@@ -778,35 +752,40 @@ GO
 
 
 
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (1, 1, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (2, 2, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (102, 3, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (215, 4, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (90, 5, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (395, 6, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (241, 7, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (293, 8, 0);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (350, 9, 1);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (9, 10, 1);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (229, 11, 1);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (230, 11, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (1, 1, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (2, 2, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (102, 3, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (215, 4, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (90, 5, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (395, 6, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (241, 7, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (293, 8, 0,2);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (350, 9, 1,2);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (9, 10, 1,2);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (229, 11, 1,3);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (230, 11, 0,1);
 
+--Meddelanden
+insert into Messages (booking_ref, comment, date_) values (1, 'En extrasäng', '2021-11-06 13:48:48');
+insert into Messages (booking_ref, comment, date_) values (2, 'bla bla', '2021-05-18 21:18:20');
+insert into Messages (booking_ref, comment, date_) values (3, 'Checkar in efter 13.00', '2022-01-20 13:29:16');
+insert into Messages (booking_ref, comment, date_) values (4, 'Allergisk mot hundar', '2021-04-17 14:46:41');
+insert into Messages (booking_ref, comment, date_) values (5, 'Väckning 07.00', '2021-08-26 23:45:16');
+insert into Messages (booking_ref, comment, date_) values (6, 'Extra städning', '2021-06-26 09:06:25');
+insert into Messages (booking_ref, comment, date_) values (7, 'Vill ha två extrasängar', '2022-03-14 00:50:53');
+insert into Messages (booking_ref, comment, date_) values (8, 'Klagar på oljud', '2022-02-13 06:31:22');
+insert into Messages (booking_ref, comment, date_) values (9, 'Stör ej', '2022-03-12 21:03:10');
+insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent', '2021-04-19 16:58:14');
+INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
+GO
 
 
 
 SELECT rt.Name FROM room_type rt
 JOIN Room
 ON room.room_room_type_id = rt.room_type_id
-WHERE room.room_NR = 350
+WHERE room.room_NR = 230
 
 
---SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
-SELECT b.booking_id, b.check_in_date, b.check_out_date, c.first_name, c.last_name, r.room_NR,r.[floor],rt.name
-FROM Customer c 
-JOIN Guest_booking gb ON gb.customer_id = c.ID
-JOIN Booking b ON gb.id = b.guest_booking_id
-JOIN Rooms_booked rb ON rb.booked_rooms_id = b.rooms_booked_id
-JOIN room r ON r.room_NR = rb.room_id
-JOIN Room_type rt ON rt.room_type_id = r.room_room_type_id
---WHERE b.check_out_date>GETDATE() --FÖR ATT SE VILKA SOM ÄR AKTIVA 
-ORDER BY r.room_NR
+
+
