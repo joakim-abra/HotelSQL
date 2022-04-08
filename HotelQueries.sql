@@ -26,7 +26,7 @@ GO
 -- OBS! EJ FÄRDIGA VIEWS NEDAN
 
 -- Vilken bokning som har vilka gäster.
-SELECT b.booking_id, c.ID AS customer_id, c.first_name, c.last_name FROM Guest_booking gb
+SELECT b.booking_id,b.contact_id, c.ID AS customer_id, c.first_name, c.last_name FROM Guest_booking gb
 INNER JOIN Booking b
 ON gb.belongs_to_booking_id = b.booking_id
 RIGHT JOIN Customer c 

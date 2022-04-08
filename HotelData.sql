@@ -742,42 +742,63 @@ insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent',
 INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
 GO
 
-insert into guest_booking (customer_id, belongs_to_booking_id) values (114, 5);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (135, 9);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (70, 8);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (13, 8);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (116, 6);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (49, 9);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (60, 8);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (38, 8);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (66, 1);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (51, 3);
+
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (1, 7, '2021-05-16', '2021-05-23','2021-05-23',0,9, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (2, 6, '2021-12-06', '2021-12-12', '2021-05-23',0,2, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (3, 12, '2022-02-09', '2022-02-21', '2021-05-23', 0,3, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (4, 11, '2021-06-13', '2021-06-24', '2021-05-23',0,3, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (5, 2, '2021-08-17', '2021-08-19', '2021-05-23',0,3, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (6, 7, '2022-03-09', '2022-03-16', '2021-05-23',0,9, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (7, 4, '2021-12-06', '2021-12-10', '2021-05-23',0,7, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (8, 3, '2021-09-23', '2021-09-26', '2021-05-23',0,8, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (9, 2, '2022-04-05', '2022-04-07', '2021-05-23',0,9, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (10, 2, '2022-04-06', '2022-04-08', '2021-05-23',0,7, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (11, 3, '2022-04-07', '2022-04-09','2022-04-08',0, 10, 1);
+
 GO
 
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (206, 4, 2);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (17, 2, 3);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (39, 1, 4);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (197, 7, 1);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (285, 3, 4);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (238, 5, 1);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (307, 4, 2);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (22, 7, 3);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (391, 3, 3);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, number_of_guests) values (192, 9, 2);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (1, 1);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (2, 2);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (3, 3);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (4, 4);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (5, 5);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (6, 6);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (7, 7);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (8, 8);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (9, 9);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (10, 10);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (11, 11);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (12, 11);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (13, 11);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (14, 8);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (15, 9);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (16, 10);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (17, 11);
 GO
 
 
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (195, 5, 10, 0, 8, '2021-11-13 19:14:51', '2021-11-22 19:14:51', 3, 1);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (195, 6, 8, 0, 2, '2021-10-09 18:56:54', '2021-10-23 18:56:54', 7, 1);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (102, 10, 2, 1, 10, '2021-06-21 07:48:12', '2021-06-30 07:48:12', 8, 1);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (171, 10, 6, 0, 11, '2021-11-22 17:32:01', '2021-12-01 17:32:01', 3, 0);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (125, 6, 6, 0, 9, '2021-12-28 12:06:14', '2022-01-01 12:06:14', 5, 0);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (77, 9, 3, 0, 5, '2021-10-27 12:46:46', '2021-11-09 12:46:46', 7, 1);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (176, 2, 7, 1, 8, '2021-07-20 07:44:49', '2021-07-28 07:44:49', 8, 0);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (30, 9, 7, 0, 14, '2022-01-11 18:01:56', '2022-01-21 18:01:56', 10, 0);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (97, 10, 5, 2, 1, '2021-10-26 21:11:36', '2021-11-09 21:11:36', 2, 0);
-insert into booking (contact_id, rooms_booked_id, guest_booking_id, extra_bed, num_of_night, check_in_date, check_out_date, employee_ref, prepaid) values (162, 3, 9, 0, 14, '2021-10-29 00:56:43', '2021-11-10 00:56:43', 2, 1);
-GO
+
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (1, 1, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (2, 2, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (102, 3, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (215, 4, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (90, 5, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (395, 6, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (241, 7, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (293, 8, 0);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (350, 9, 1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (9, 10, 1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (229, 11, 1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed) values (230, 11, 0);
+
+
+
+
+SELECT rt.Name FROM room_type rt
+JOIN Room
+ON room.room_room_type_id = rt.room_type_id
+WHERE room.room_NR = 350
+
 
 --SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
 SELECT b.booking_id, b.check_in_date, b.check_out_date, c.first_name, c.last_name, r.room_NR,r.[floor],rt.name
