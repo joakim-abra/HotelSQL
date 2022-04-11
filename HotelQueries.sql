@@ -221,6 +221,8 @@ GO
 
 
 -- TRIGGERS
+
+--SKAPAR DATA FÖR LATE_ARRIVAL_TIMER I BOOKING GENOM INSERT TILL CHECK-LOG (INCHECKNING)
 CREATE TRIGGER late_arrival
 ON check_log
 FOR INSERT
@@ -229,11 +231,74 @@ BEGIN
     IF ((SELECT log_check_in FROM inserted)-(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))>0)
         BEGIN
             UPDATE Booking
-            SET late_arrival_timer = (DATEDIFF (hour, (SELECT log_check_in FROM inserted),(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))))
+            SET late_arrival_timer = (DATEDIFF (hour, (SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i)),(SELECT log_check_in FROM inserted)))
             WHERE booking_id = (SELECT i.booking_id FROM inserted i)
         END
 END   
-GO     
+GO   
+
+INSERT INTO check_log (booking_id,log_check_in) VALUES(11, '2022-04-07 18:00')
+
+GO
+
+
+--FUNKAR INTEEEE
+ALTER TRIGGER availability_check2
+ON rooms_booked
+FOR INSERT, UPDATE
+AS
+    BEGIN
+        IF ((SELECT i.room_id FROM inserted i) IN (SELECT rb.room_id FROM Rooms_booked rb))
+            BEGIN
+                IF ((SELECT b.check_in_date FROM Booking b WHERE b.booking_id = (SELECT i.room_belongs_to_booking_id FROM inserted i)) BETWEEN (SELECT b2.check_in_date FROM booking b2 WHERE b2.booking_id = 
+                (SELECT rb2.room_belongs_to_booking_id FROM Rooms_booked rb2 WHERE rb2.room_id IN (SELECT i.room_id FROM inserted i))) AND (SELECT b2.check_out_date FROM booking b2 WHERE b2.booking_id = 
+                (SELECT rb3.room_belongs_to_booking_id FROM Rooms_booked rb3 WHERE  rb3.room_id IN (SELECT i.room_id FROM inserted i))))
+                    BEGIN
+                    ROLLBACK TRANSACTION
+                       PRINT 'GÅR EJ ATT GENOMFÖRA DENNA BOKNING EFTERSOM ETT RUM ÄR UPPTAGET'
+                    END
+            END
+        ELSE
+            BEGIN
+                COMMIT TRANSACTION
+                PRINT 'RUM BOKAT'
+            END    
+    END
+GO                        
+
+
+
+
+-- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNING TILL 14:00.
+CREATE TRIGGER check_in_out_time_default
+ON booking
+FOR INSERT
+AS
+    BEGIN
+        UPDATE Booking
+        SET check_in_date = DATEADD(hour, 14, check_in_date) 
+        , check_out_date = DATEADD(hour, 11, check_out_date)   
+        WHERE booking_id = (SELECT booking_id FROM inserted)
+    END
+GO
+
+
+SELECT * FROM Booking WHERE booking_id = 11
+
+
+
+SELECT b.booking_id,rb.room_id FROM booking b 
+JOIN rooms_booked rb
+ON b.booking_id = rb.room_belongs_to_booking_id
+
+
+
+
+
+
+
+
+
 
 -- VIEWS
 
