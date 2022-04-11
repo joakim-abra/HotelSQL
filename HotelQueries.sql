@@ -1,12 +1,114 @@
 USE Hotel;
 GO
 
+-- Konton
+
+-- Admin
+-- db_owner representerar en administratör. Om det är rätt val är oklart, då permissions är ett djupt ämne.
+CREATE LOGIN hotel_admin WITH PASSWORD = 'adminPass01';
+GO
+
+CREATE USER hotel_admin FOR LOGIN hotel_admin;
+GO 
+
+ALTER ROLE db_owner
+ADD MEMBER hotel_admin;
+GO 
+
+-- Personal
+CREATE LOGIN hotel_staff WITH PASSWORD ='staffPass01';
+GO
+
+CREATE USER hotel_staff FOR LOGIN hotel_staff;
+GO
+
+GRANT INSERT, SELECT, UPDATE, DELETE, EXECUTE TO hotel_staff
+
+-- Gäst
+CREATE LOGIN hotel_guest WITH PASSWORD = 'guestPass01'
+
+CREATE USER hotel_guest FOR LOGIN hotel_guest;
+GO
+
+GRANT EXECUTE ON OBJECT::display_feedback_and_average_rating TO hotel_guest; -- GRANT EXECUTE ON display_feedback_and_average_rating TO hotel_guest
+GO
+
+GRANT EXECUTE ON OBJECT::write_review TO hotel_guest; -- GRANT EXECUTE ON display_feedback_and_average_rating TO hotel_guest
+GO
+
+DROP USER hotel_admin;
+GO
+DROP USER hotel_staff;
+GO
+DROP USER hotel_guest;
+GO
+
+/*
+-- Görs inloggad som sa.
+-- Skapar ett nytt inlogg för användare demouser till SERVER.
+CREATE LOGIN demouser WITH PASSWORD = 'P@ssw0rd';
+GO
+
+-- Skapar en användare för aktuell DATABAS (se USE).
+CREATE USER demouser1 FOR LOGIN demouser;
+GO
+
+-- Tilldelar demouser1 CRUD-funktionalitet.
+GRANT CONTROL TO demouser1 
+
+SELECT * FROM users;
+*/
+
+SELECT * FROM Booking 
+GO
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (2, 7, '2021-05-18', '2021-05-18','2023-05-23',0,9, 1);
+GO
+
+CREATE TRIGGER test 
+ON Booking
+FOR INSERT
+AS
+IF EXISTS(
+SELECT check_in_date FROM inserted 
+WHERE check_in_date 
+BETWEEN 
+(SELECT b.check_in_date FROM Booking b
+INNER JOIN Rooms_booked rb
+ON b.booking_id =  rb.room_belongs_to_booking_id
+INNER JOIN Room r 
+ON rb.room_id = r.room_NR
+WHERE room_NR = 1)
+AND
+(SELECT b.check_out_date FROM Booking b
+INNER JOIN Rooms_booked rb
+ON b.booking_id =  rb.room_belongs_to_booking_id
+INNER JOIN Room r 
+ON rb.room_id = r.room_NR
+WHERE room_NR = 1)
+)
+BEGIN
+ROLLBACK TRANSACTION
+PRINT 'Rummet är redan bokat.' -- lägg till datum här, kanske. Eller ha ett RaiseError ... 
+END
+ELSE
+BEGIN
+--COMMIT TRANSACTION
+PRINT 'Bokning registrerad.'
+END;
+GO
 
 
+delete from Booking where booking_id = 16
+select * from Booking
+GO
+
+drop TRIGGER test;
+GO
 
 -- PROCEDURES
 
 -- Visar användarnas snittbetyg.
+-- Eftersom IDENTITY helt plötsligt hoppar från t.ex. 20 till 1021 så fungerar inte proceduren alltid som tänkt.
 CREATE PROCEDURE display_feedback_and_average_rating
 AS
 DECLARE @counter INT
@@ -38,6 +140,8 @@ GO
 
 -- Feedback rad 11 saknar reviewer
 
+
+-- TRY CATCH fungerar inte
 CREATE PROCEDURE write_review @reviewer NVARCHAR(50), @comment NVARCHAR(500), @score INT 
 AS 
 BEGIN TRY
@@ -60,11 +164,11 @@ GO
 
 -- Tänk på att feedback_id ökar varje gång även om raden tas bort.
 DELETE FROM Feedback
-WHERE feedback_id = 26;
+WHERE feedback_id = 1023;
 GO
 
 select * from Feedback
-
+GO
 
 
 CREATE PROCEDURE create_room_bill (@Room_NR INT, @discount_id INT)
