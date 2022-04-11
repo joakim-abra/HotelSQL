@@ -7,15 +7,63 @@ GO
 -- PROCEDURES
 
 -- Visar användarnas snittbetyg.
-CREATE PROCEDURE display_average_rating
+CREATE PROCEDURE display_feedback_and_average_rating
 AS
+DECLARE @counter INT
+DECLARE @feedback_id INT, @reviewer NVARCHAR(50), @comment NVARCHAR(500), @score INT 
 DECLARE @average DECIMAL (5,2)
+SET @counter = 1
 SET @average = CAST((SELECT SUM(score) FROM Feedback) AS decimal)/CAST((SELECT COUNT(score) FROM Feedback) AS decimal)
-PRINT 'Hotellets medelbetyg: ' + CAST(@average AS VARCHAR(10));
+BEGIN
+    PRINT 'Hotellets medelbetyg: ' + CAST(@average AS VARCHAR(10))
+    PRINT '---------------'
+END
+WHILE (SELECT COUNT(feedback_id) FROM Feedback) - @counter >= 0
+BEGIN
+    SET @feedback_id = (SELECT feedback_id FROM Feedback WHERE feedback_id = @counter)
+    SET @reviewer = (SELECT reviewer FROM Feedback WHERE feedback_id = @counter)
+    SET @comment = (SELECT comment FROM Feedback WHERE feedback_id = @counter)
+    SET @score = (SELECT score FROM Feedback WHERE feedback_id = @counter)
+    PRINT CAST(@feedback_id AS VARCHAR (10)) + ' * Reviewer: ' + @reviewer + ' * Comment: ' + @comment + ' * Score: ' + CAST(@score AS NVARCHAR(10))
+    PRINT '---------------'
+    SET @counter = @counter + 1;
+END;
 GO
 
-EXECUTE display_average_rating;
+EXECUTE display_feedback_and_average_rating;
 GO
+
+drop PROCEDURE display_feedback_and_average_rating;
+GO
+
+-- Feedback rad 11 saknar reviewer
+
+CREATE PROCEDURE write_review @reviewer NVARCHAR(50), @comment NVARCHAR(500), @score INT 
+AS 
+BEGIN TRY
+    IF (@score < 1 OR @score > 5)
+    PRINT 'The score has to be between 1 and 5.'
+    ELSE
+    INSERT INTO Feedback (reviewer, comment, score) VALUES (@reviewer, @comment, @score)
+END TRY
+BEGIN CATCH
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
+END CATCH;
+GO
+
+--EXECUTE write_review @reviewer = 'namn', @comment = 'kommentar', @score = betyg 1- 5 som INT;
+EXECUTE write_review @reviewer = 'A name', @comment = 'A comment', @score = 5;
+GO
+
+DROP PROCEDURE write_review;
+GO
+
+-- Tänk på att feedback_id ökar varje gång även om raden tas bort.
+DELETE FROM Feedback
+WHERE feedback_id = 26;
+GO
+
+select * from Feedback
 
 
 
