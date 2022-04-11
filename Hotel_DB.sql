@@ -23,7 +23,8 @@ CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
     first_name NVARCHAR(20),
     last_name NVARCHAR(50),
-    position NVARCHAR(20)
+    position NVARCHAR(20),
+    signature NVARCHAR(20)
 )
 GO
 
@@ -107,7 +108,7 @@ CREATE TABLE Booking(
     num_of_night INT,
     check_in_date DATETIME,
     check_out_date DATETIME,
-    late_arrival_timer DATETIME,
+    late_arrival_timer INT,
     --TÄNKT ATT LÖSAS MED EN TRIGGER SOM BERÄKNAR LOG_CHECK_IN - CHECK_IN IF>0
     no_show BIT NOT NULL DEFAULT 0,
     employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
