@@ -1,7 +1,7 @@
 USE Hotel;
 GO
 
--- Konton
+---------------------------------------------- Konton
 
 -- Admin
 -- db_owner representerar en administratör. Om det är rätt val är oklart, då permissions är ett djupt ämne.
@@ -22,7 +22,12 @@ GO
 CREATE USER hotel_staff FOR LOGIN hotel_staff;
 GO
 
-GRANT INSERT, SELECT, UPDATE, DELETE, EXECUTE TO hotel_staff
+DROP USER hotel_staff
+
+GRANT INSERT, SELECT, UPDATE, DELETE, EXECUTE
+TO hotel_staff
+GO
+
 
 -- Gäst
 CREATE LOGIN hotel_guest WITH PASSWORD = 'guestPass01'
@@ -37,11 +42,19 @@ GRANT EXECUTE ON OBJECT::write_review TO hotel_guest; -- GRANT EXECUTE ON displa
 GO
 
 DROP USER hotel_admin;
+DROP LOGIN hotel_admin
 GO
 DROP USER hotel_staff;
+DROP LOGIN hotel_staff
 GO
 DROP USER hotel_guest;
+DROP LOGIN hotel_guest
 GO
+
+
+
+
+
 
 /*
 -- Görs inloggad som sa.
@@ -59,53 +72,8 @@ GRANT CONTROL TO demouser1
 SELECT * FROM users;
 */
 
-SELECT * FROM Booking 
-GO
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (2, 7, '2021-05-18', '2021-05-18','2023-05-23',0,9, 1);
-GO
 
-CREATE TRIGGER test 
-ON Booking
-FOR INSERT
-AS
-IF EXISTS(
-SELECT check_in_date FROM inserted 
-WHERE check_in_date 
-BETWEEN 
-(SELECT b.check_in_date FROM Booking b
-INNER JOIN Rooms_booked rb
-ON b.booking_id =  rb.room_belongs_to_booking_id
-INNER JOIN Room r 
-ON rb.room_id = r.room_NR
-WHERE room_NR = 1)
-AND
-(SELECT b.check_out_date FROM Booking b
-INNER JOIN Rooms_booked rb
-ON b.booking_id =  rb.room_belongs_to_booking_id
-INNER JOIN Room r 
-ON rb.room_id = r.room_NR
-WHERE room_NR = 1)
-)
-BEGIN
-ROLLBACK TRANSACTION
-PRINT 'Rummet är redan bokat.' -- lägg till datum här, kanske. Eller ha ett RaiseError ... 
-END
-ELSE
-BEGIN
---COMMIT TRANSACTION
-PRINT 'Bokning registrerad.'
-END;
-GO
-
-
-delete from Booking where booking_id = 16
-select * from Booking
-GO
-
-drop TRIGGER test;
-GO
-
--- PROCEDURES
+----------------------------------------------- PROCEDURES
 
 -- Visar användarnas snittbetyg.
 -- Eftersom IDENTITY helt plötsligt hoppar från t.ex. 20 till 1021 så fungerar inte proceduren alltid som tänkt.
@@ -134,6 +102,8 @@ GO
 
 EXECUTE display_feedback_and_average_rating;
 GO
+
+DROP DATABASE Hotel
 
 drop PROCEDURE display_feedback_and_average_rating;
 GO
@@ -171,12 +141,15 @@ select * from Feedback
 GO
 
 
+
+--SKAPAR FAKTURA FÖR ETT RUM
 CREATE PROCEDURE create_room_bill (@Room_NR INT, @discount_id INT)
 AS
 DECLARE @amount DECIMAL
 DECLARE @booking_id INT = (SELECT rb.booked_rooms_id FROM Rooms_booked rb WHERE @Room_NR = rb.room_id)
 SET @amount = (SELECT r.room_price FROM Room r WHERE @Room_NR = r.room_NR)
 SET @amount = @amount - (@amount*(SELECT d.discount_amount FROM Discount d WHERE @discount_id = d.discount_id))
+SET @amount = @amount *(SELECT b.num_of_night FROM booking b WHERE booking_id = (SELECT rb.room_belongs_to_booking_id FROM Rooms_booked rb WHERE @Room_NR = rb.room_id))
 INSERT INTO room_bill (amount,room_discount_id,booked_room_ID) VALUES (@amount, @discount_id, @booking_id)
 GO
 
@@ -193,57 +166,150 @@ ON rb.booked_room_ID = roob.booked_rooms_id
 WHERE roob.room_belongs_to_booking_id = 11
 GO
 
+SELECT * FROM Booking
+WHERE booking_id = 11
+GO
 
+
+
+--SKAPAR TOTAL RÄKNING FÖR BOKNING
 CREATE PROCEDURE create_total_bill_(@booking_id INT, @payment_method_id INT, @reference_number INT = NULL)
 AS
+DECLARE @totalsum DECIMAL = 
+    (SELECT SUM(amount) FROM room_bill rb
+JOIN Rooms_booked roob
+ON rb.booked_room_ID = roob.booked_rooms_id
+WHERE roob.room_belongs_to_booking_id = @booking_id)
+--OM FÖRSENAD ANKOMST LÄGGS TILLÄGGSAVGIFT TILL om 50kr/timmen
+IF((SELECT late_arrival_timer FROM booking WHERE booking_id = @booking_id)>0)
+    BEGIN
+        SET @totalsum = @totalsum + (50*(SELECT late_arrival_timer FROM booking WHERE booking_id = @booking_id))
+    END
 INSERT INTO total_booking_bill(total_amount,
     selected_payment_method,
     reference_number,
-    booking_id_bill) VALUES ((SELECT SUM(amount) FROM room_bill rb
-JOIN Rooms_booked roob
-ON rb.booked_room_ID = roob.booked_rooms_id
-WHERE roob.room_belongs_to_booking_id = @booking_id),@payment_method_id,@reference_number,@booking_id
+    booking_id_bill) VALUES (@totalsum,@payment_method_id,@reference_number,@booking_id
 );
+
+
+
 
 EXEC create_total_bill_ 11,3
 
 SELECT * FROM total_booking_bill
 
-SELECT b.booking_id Bokning, (SELECT c.first_name FROM Customer c WHERE b.contact_id = c.ID) Förnamn, (SELECT c.last_name FROM Customer c WHERE b.contact_id = c.ID) Efternamn, tbb.total_amount Summa, 
-(SELECT pm.method_name FROM payment_methods pm WHERE tbb.selected_payment_method = pm.method_id) Betalningsmetod,tbb.reference_number Referensnummer FROM Booking b 
-JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
-
-
-
 SELECT * FROM Rooms_booked
 GO
 
 
+--PROCEDUR FÖR ATT SÄTTA NO_SHOW/"AVBOKNING" (egentligen gör att triggern som kollar rum och datum släpper igenom ny rumsbokning)
+CREATE PROCEDURE SET_no_show (@booking_id INT)
+AS
+    BEGIN
+                IF((SELECT log_check_in FROM check_in_log WHERE booking_id = @booking_id) IS NULL)
+                    BEGIN
+                        PRINT 'Rummen avbokas för bokningsdatumet'
+                        UPDATE Booking
+                        SET check_in_date = NULL, check_out_date = NULL, no_show = 1
+                        WHERE booking_id = @booking_id
+                    END
+                ELSE
+                    BEGIN
+                        PRINT 'Kan inte avboka en incheckad gäst!'
+                    END    
+    END
+GO
 
--- TRIGGERS
+
+
+
+
+
+------------------------------------------------------------ TRIGGERS
+
 
 --SKAPAR DATA FÖR LATE_ARRIVAL_TIMER I BOOKING GENOM INSERT TILL CHECK-LOG (INCHECKNING)
 CREATE TRIGGER late_arrival
-ON check_log
-FOR INSERT
+ON check_in_log
+FOR INSERT,UPDATE, DELETE
 AS
 BEGIN
+    IF EXISTS(SELECT * FROM inserted)
+    BEGIN
     IF ((SELECT log_check_in FROM inserted)-(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))>0)
         BEGIN
             UPDATE Booking
             SET late_arrival_timer = (DATEDIFF (hour, (SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i)),(SELECT log_check_in FROM inserted)))
             WHERE booking_id = (SELECT i.booking_id FROM inserted i)
         END
+    END
+    ELSE
+        BEGIN
+            IF EXISTS(SELECT * FROM deleted)
+            BEGIN
+                UPDATE Booking
+                SET late_arrival_timer = 0 WHERE booking_id = (SELECT d.booking_id FROM deleted d)
+            END    
+        END
 END   
 GO   
 
-INSERT INTO check_log (booking_id,log_check_in) VALUES(11, '2022-04-07 18:00')
-
+INSERT INTO check_log (booking_id,log_check_in) VALUES(11, '2022-04-07 15:30')
 GO
 
 
---FUNKAR INTEEEE
-ALTER TRIGGER availability_check2
+--TRIGGER FÖR ATT FÖRHINDRA DUBBELBOKNING AV RUM
+SELECT * FROM Booking 
+GO
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (2, 7, '2021-05-18', '2021-05-18','2023-05-23',0,9, 1);
+GO
+
+CREATE TRIGGER availability_checker 
+ON Booking
+FOR INSERT
+AS
+    IF EXISTS(
+                SELECT check_in_date FROM inserted 
+                WHERE check_in_date 
+                BETWEEN 
+                        (SELECT b.check_in_date FROM Booking b
+                        INNER JOIN Rooms_booked rb
+                        ON b.booking_id =  rb.room_belongs_to_booking_id
+                        INNER JOIN Room r 
+                        ON rb.room_id = r.room_NR
+                        WHERE room_NR = 1)
+                AND
+                        (SELECT b.check_out_date FROM Booking b
+                        INNER JOIN Rooms_booked rb
+                        ON b.booking_id =  rb.room_belongs_to_booking_id
+                        INNER JOIN Room r 
+                        ON rb.room_id = r.room_NR
+                        WHERE room_NR = 1)
+            )
+            BEGIN
+                ROLLBACK TRANSACTION
+                PRINT 'Rummet är redan bokat.' -- lägg till datum här, kanske. Eller ha ett RaiseError ... 
+            END
+    ELSE
+        BEGIN
+            --COMMIT TRANSACTION
+            PRINT 'Bokning registrerad.'
+        END;
+GO
+
+
+delete from Booking where booking_id = 16
+select * from Booking
+GO
+
+drop TRIGGER availability_checker;
+GO
+
+
+
+
+--FUNKAR INTE
+CREATE TRIGGER availability_check2
 ON rooms_booked
 FOR INSERT, UPDATE
 AS
@@ -267,9 +333,7 @@ AS
 GO                        
 
 
-
-
--- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNING TILL 14:00.
+-- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00.
 CREATE TRIGGER check_in_out_time_default
 ON booking
 FOR INSERT
