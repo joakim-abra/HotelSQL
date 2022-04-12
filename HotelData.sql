@@ -413,7 +413,7 @@ insert into Room (Room_Room_type_id) values (4);
 GO
 
 
-
+--SÄTTER VÅNINGSPLAN FÖR RUM
 UPDATE Room 
 SET floor = (
 CASE
@@ -426,7 +426,7 @@ END)
 GO
 
 
-
+--SÄTTER INVIDUELT PRIS FÖR RUM BEROENDE PÅ VÅNING OCH RUMSTYP
 UPDATE Room
 SET room_price = (
 CASE
@@ -440,16 +440,16 @@ GO
 
 
 --EMPLOYEES
-insert into Employees (first_name, last_name, position) values ('Kim', 'Grellier', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Susana', 'Petrus', 'Booking manager');
-insert into Employees (first_name, last_name, position) values ('Kiersten', 'Gravet', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Tonie', 'Pochin', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Andie', 'Charlon', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Claudian', 'Daingerfield', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Silvia', 'Eathorne', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Delmore', 'Toffoloni', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Aubrey', 'Willey', 'Reception');
-insert into Employees (first_name, last_name, position) values ('Constantin', 'Moffat', 'Reception');
+insert into Employees (first_name, last_name, position, signature) values ('Kim', 'Grellier', 'Reception', 'KG');
+insert into Employees (first_name, last_name, position, signature) values ('Susana', 'Petrus', 'Booking manager','SP');
+insert into Employees (first_name, last_name, position, signature) values ('Kiersten', 'Gravet', 'Reception','KG');
+insert into Employees (first_name, last_name, position, signature) values ('Tonie', 'Pochin', 'Reception','TP');
+insert into Employees (first_name, last_name, position, signature) values ('Andie', 'Charlon', 'Reception','AC');
+insert into Employees (first_name, last_name, position, signature) values ('Claudian', 'Daingerfield', 'Reception','CD');
+insert into Employees (first_name, last_name, position, signature) values ('Silvia', 'Eathorne', 'Reception','SE');
+insert into Employees (first_name, last_name, position, signature) values ('Delmore', 'Toffoloni', 'Reception','DT');
+insert into Employees (first_name, last_name, position, signature) values ('Aubrey', 'Willey', 'Reception','AW');
+insert into Employees (first_name, last_name, position, signature) values ('Constantin', 'Moffat', 'Reception','CM');
 GO
 
 --CUSTOMERS
@@ -716,21 +716,34 @@ INSERT INTO Feedback (reviewer, comment, score) VALUES ('Uncle Deadly', 'Comfort
 INSERT INTO Feedback (reviewer, comment, score) VALUES ('Waldorf', 'Extremly unfrienfly service at arrival. Decent room but far from the standard that was expected based on rating.', 1);
 GO
 
-
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (1, 7, '2021-05-16', '2021-05-23','2021-05-23',0,9, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (2, 6, '2021-12-06', '2021-12-12', '2021-05-23',0,2, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (3, 12, '2022-02-09', '2022-02-21', '2021-05-23', 0,3, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (4, 11, '2021-06-13', '2021-06-24', '2021-05-23',0,3, 0);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (5, 2, '2021-08-17', '2021-08-19', '2021-05-23',0,3, 0);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (6, 7, '2022-03-09', '2022-03-16', '2021-05-23',0,9, 0);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (7, 4, '2021-12-06', '2021-12-10', '2021-05-23',0,7, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (8, 3, '2021-09-23', '2021-09-26', '2021-05-23',0,8, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (9, 2, '2022-04-05', '2022-04-07', '2021-05-23',0,9, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (10, 2, '2022-04-06', '2022-04-08', '2021-05-23',0,7, 0);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (11, 3, '2022-04-07', '2022-04-09','2022-04-08',0, 10, 1);
-
+--BOKNINGAR
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (1, 7, '2021-05-16', '2021-05-23',0,9, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (2, 6, '2021-12-06', '2021-12-12', 0,2, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (3, 12, '2022-02-09', '2022-02-21', 0,3, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (4, 11, '2021-06-13', '2021-06-24', 0,3, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (5, 2, '2021-08-17', '2021-08-19', 0,3, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (6, 7, '2022-03-09', '2022-03-16', 0,9, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (7, 4, '2021-12-06', '2021-12-10', 0,7, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (8, 3, '2021-09-23', '2021-09-26', 0,8, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (9, 2, '2022-04-05', '2022-04-07', 0,9, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (10, 2, '2022-04-06', '2022-04-08', 0,7, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (11, 3, '2022-04-07', '2022-04-09',0, 10, 1);
 GO
 
+
+/*
+UPDATE booking SET check_in_date = '2022-04-09 14:00' WHERE booking_id = 12
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (12, 4, '2022-04-08', '2022-04-11',0, 10, 1);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (17, 13);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (229, 13, 0,1);
+
+
+SELECT * FROM booking
+LEFT JOIN Rooms_booked
+ON booking_id = room_belongs_to_booking_id
+*/
+
+--Bokade gäster
 insert into guest_booking (customer_id, belongs_to_booking_id) values (1, 1);
 insert into guest_booking (customer_id, belongs_to_booking_id) values (2, 2);
 insert into guest_booking (customer_id, belongs_to_booking_id) values (3, 3);
@@ -751,7 +764,7 @@ insert into guest_booking (customer_id, belongs_to_booking_id) values (17, 11);
 GO
 
 
-
+--Rumsbokningar
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (1, 1, 0,1);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (2, 2, 0,1);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (102, 3, 0,1);
@@ -764,6 +777,7 @@ insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (9, 10, 1,2);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (229, 11, 1,3);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (230, 11, 0,1);
+
 
 --Meddelanden
 insert into Messages (booking_ref, comment, date_) values (1, 'En extrasäng', '2021-11-06 13:48:48');
@@ -778,14 +792,6 @@ insert into Messages (booking_ref, comment, date_) values (9, 'Stör ej', '2022-
 insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent', '2021-04-19 16:58:14');
 INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
 GO
-
-
-
-SELECT rt.Name FROM room_type rt
-JOIN Room
-ON room.room_room_type_id = rt.room_type_id
-WHERE room.room_NR = 230
-
 
 
 

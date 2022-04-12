@@ -11,19 +11,12 @@ GO
 -- GO
 
 
---VIEW ALLA RUM OCH TYP
-
--- SELECT r.room_NR, rt.name, rt.nr_of_beds, rt.balcony, r.extra_bed FROM Room r
--- INNER JOIN Room_type rt
--- ON r.room_type_id = rt.room_type_id
-
-
-
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
     first_name NVARCHAR(20),
     last_name NVARCHAR(50),
-    position NVARCHAR(20)
+    position NVARCHAR(20),
+    signature NVARCHAR(20)
 )
 GO
 
@@ -48,17 +41,6 @@ CREATE TABLE payment_methods(
 GO
 
 
-
--- CREATE TABLE creditcard(
-
---     card_type_ID INT PRIMARY KEY,
-
---     card_type NVARCHAR(50),
-
--- );
--- GO
-
-
 CREATE TABLE Room_type(
     room_type_id INT IDENTITY PRIMARY KEY,
     name NVARCHAR(30),
@@ -79,26 +61,6 @@ CREATE TABLE Room(
 );
 GO
 
-/*
-CREATE TABLE Booking(
-    booking_id INT IDENTITY PRIMARY KEY,
-    contact_id INT FOREIGN KEY REFERENCES Customer(ID),
-    --room_id INT FOREIGN KEY REFERENCES Room(room_NR),
-    rooms_booked_id INT FOREIGN KEY REFERENCES Rooms_booked(booked_rooms_id), 
-    guest_booking_id INT FOREIGN KEY REFERENCES Guest_booking(id),
---- REFERENS TILL TABELL MED BOKANDE GÄSTER
-    extra_bed INT NOT NULL DEFAULT 0,
-    num_of_night INT,
-    check_in_date DATETIME,
-    check_out_date DATETIME,
-    late_arrival_timer DATETIME,
-    --TÄNKT ATT LÖSAS MED EN TRIGGER SOM BERÄKNAR LOG_CHECK_IN - CHECK_IN IF>0
-    no_show BIT NOT NULL DEFAULT 0,
-    employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
-    prepaid BIT NOT NULL DEFAULT 0
-);
-GO
-*/
 
 CREATE TABLE Booking(
     booking_id INT IDENTITY PRIMARY KEY,
@@ -107,20 +69,13 @@ CREATE TABLE Booking(
     num_of_night INT,
     check_in_date DATETIME,
     check_out_date DATETIME,
-    late_arrival_timer DATETIME,
-    --TÄNKT ATT LÖSAS MED EN TRIGGER SOM BERÄKNAR LOG_CHECK_IN - CHECK_IN IF>0
+    late_arrival_timer INT,
     no_show BIT NOT NULL DEFAULT 0,
     employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
     prepaid BIT NOT NULL DEFAULT 0
 );
 GO
 
--- CREATE TABLE Guest_booking(
---     id INT IDENTITY PRIMARY KEY,
---     customer_id INT FOREIGN KEY REFERENCES Customer (ID),
---     belongs_to_booking_id INT 
--- );
--- GO
 
 CREATE TABLE Guest_booking(
     id INT IDENTITY PRIMARY KEY,
@@ -129,13 +84,6 @@ CREATE TABLE Guest_booking(
 );
 GO
 
--- CREATE TABLE Rooms_booked(
---     booked_rooms_id INT IDENTITY PRIMARY KEY,
---     room_id INT FOREIGN KEY REFERENCES Room(room_NR),
---     room_belongs_to_booking_id INT,
---     number_of_guests INT
--- );
--- GO
 
 CREATE TABLE Rooms_booked(
     booked_rooms_id INT IDENTITY PRIMARY KEY,
@@ -174,8 +122,6 @@ CREATE TABLE total_booking_bill
 GO
 
 
-
-
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer(ID),
@@ -196,10 +142,9 @@ CREATE TABLE Feedback(
 );
 GO
 
-CREATE TABLE check_log(
+CREATE TABLE check_in_log(
 log_id INT IDENTITY PRIMARY KEY,
 booking_id INT FOREIGN KEY REFERENCES booking(booking_id),
-log_check_in DATETIME,
-log_check_out DATETIME
+log_check_in DATETIME
 );
 GO
