@@ -413,7 +413,7 @@ insert into Room (Room_Room_type_id) values (4);
 GO
 
 
-
+--SÄTTER VÅNINGSPLAN FÖR RUM
 UPDATE Room 
 SET floor = (
 CASE
@@ -426,7 +426,7 @@ END)
 GO
 
 
-
+--SÄTTER INVIDUELT PRIS FÖR RUM BEROENDE PÅ VÅNING OCH RUMSTYP
 UPDATE Room
 SET room_price = (
 CASE
@@ -716,7 +716,7 @@ INSERT INTO Feedback (reviewer, comment, score) VALUES ('Uncle Deadly', 'Comfort
 INSERT INTO Feedback (reviewer, comment, score) VALUES ('Waldorf', 'Extremly unfrienfly service at arrival. Decent room but far from the standard that was expected based on rating.', 1);
 GO
 
-
+--BOKNINGAR
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (1, 7, '2021-05-16', '2021-05-23',0,9, 1);
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (2, 6, '2021-12-06', '2021-12-12', 0,2, 1);
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (3, 12, '2022-02-09', '2022-02-21', 0,3, 1);
@@ -743,7 +743,7 @@ LEFT JOIN Rooms_booked
 ON booking_id = room_belongs_to_booking_id
 */
 
-
+--Bokade gäster
 insert into guest_booking (customer_id, belongs_to_booking_id) values (1, 1);
 insert into guest_booking (customer_id, belongs_to_booking_id) values (2, 2);
 insert into guest_booking (customer_id, belongs_to_booking_id) values (3, 3);
@@ -764,7 +764,7 @@ insert into guest_booking (customer_id, belongs_to_booking_id) values (17, 11);
 GO
 
 
-
+--Rumsbokningar
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (1, 1, 0,1);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (2, 2, 0,1);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (102, 3, 0,1);
@@ -777,6 +777,7 @@ insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (9, 10, 1,2);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (229, 11, 1,3);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (230, 11, 0,1);
+
 
 --Meddelanden
 insert into Messages (booking_ref, comment, date_) values (1, 'En extrasäng', '2021-11-06 13:48:48');
@@ -791,14 +792,6 @@ insert into Messages (booking_ref, comment, date_) values (9, 'Stör ej', '2022-
 insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent', '2021-04-19 16:58:14');
 INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
 GO
-
-
-/*
-SELECT rt.Name FROM room_type rt
-JOIN Room
-ON room.room_room_type_id = rt.room_type_id
-WHERE room.room_NR = 230
-*/
 
 
 
