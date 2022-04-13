@@ -354,22 +354,14 @@ SELECT * FROM Booking WHERE booking_id = 11
 SELECT b.booking_id,rb.room_id FROM booking b 
 JOIN rooms_booked rb
 ON b.booking_id = rb.room_belongs_to_booking_id
-
-
-
-
-
-
-
-
-
+GO
 
 -- VIEWS
 
 CREATE VIEW Bokings_person_och_rum
 AS
 SELECT c.first_name, c.last_name, ro.room_NR, b.booking_id
- FROM Customer AS c
+FROM Customer AS c
 INNER JOIN booking AS b
 ON b.contact_id = c.ID
 INNER JOIN Rooms_booked as r 
@@ -379,6 +371,16 @@ ON r.room_id = ro.room_NR
 GO
 
 SELECT * FROM Bokings_person_och_rum
+GO
+
+CREATE view user_payment
+AS
+SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, tbb.selected_payment_method FROM Customer c
+INNER JOIN Booking b ON c.ID = b.contact_id
+LEFT JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
+GO
+
+SELECT * FROM user_payment
 GO
 
 CREATE VIEW owerview_booking AS
