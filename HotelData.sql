@@ -733,9 +733,10 @@ GO
 
 /*
 UPDATE booking SET check_in_date = '2022-04-09 14:00' WHERE booking_id = 12
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (12, 4, '2022-04-08', '2022-04-11',0, 10, 1);
-insert into guest_booking (customer_id, belongs_to_booking_id) values (17, 13);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (229, 13, 0,1);
+
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (12, 4, '2022-04-13', '2022-04-17',0, 10, 1);
+insert into guest_booking (customer_id, belongs_to_booking_id) values (17, 12);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (229, 12, 0,1);
 
 
 SELECT * FROM booking

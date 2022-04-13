@@ -16,7 +16,7 @@ CREATE TABLE Employees(
     first_name NVARCHAR(20),
     last_name NVARCHAR(50),
     position NVARCHAR(20),
-    signature NVARCHAR(20)
+    signature NVARCHAR(20) UNIQUE
 )
 GO
 
@@ -144,7 +144,7 @@ GO
 
 CREATE TABLE check_in_log(
 log_id INT IDENTITY PRIMARY KEY,
-booking_id INT FOREIGN KEY REFERENCES booking(booking_id),
+booking_id INT UNIQUE FOREIGN KEY REFERENCES booking(booking_id),
 log_check_in DATETIME
 );
 GO

@@ -221,10 +221,33 @@ AS
 GO
 
 
+--INCHECKNING
+CREATE PROCEDURE Check_In (@booking_id INT)
+AS
+    DECLARE @now DATETIME = GETDATE() 
+    IF(@Now - (
+    SELECT b1.check_out_date FROM booking b1 JOIN Rooms_booked rb ON b1.booking_id = rb.room_belongs_to_booking_id
+    WHERE rb.room_id = ANY (SELECT rb1.room_id FROM Rooms_booked rb1 WHERE rb1.room_belongs_to_booking_id = 12) AND b1.booking_id<>@booking_id)>=0)
+        BEGIN
+            INSERT INTO check_in_log (booking_id, log_check_in) VALUES (
+            @booking_id, @now
+        )
+        END 
+    ELSE
+        BEGIN
+            PRINT 'KAN ej checka in ännu, rum ej redo'
+        END    
+GO    
 
+SELECT * FROM Booking WHERE booking_id = 11
+GO
 
+UPDATE Booking
+SET check_out_date = '2022-04-13 14:00'
+WHERE booking_id = 11 
 
-
+EXEC Check_In 12
+GO
 ------------------------------------------------------------ TRIGGERS
 
 
@@ -254,8 +277,17 @@ BEGIN
 END   
 GO   
 
-INSERT INTO check_log (booking_id,log_check_in) VALUES(11, '2022-04-07 15:30')
+INSERT INTO check_in_log (booking_id,log_check_in) VALUES (11, '2022-04-07 14:05')
 GO
+
+UPDATE check_in_log
+SET log_check_in = '2022-04-07 14:05'
+WHERE booking_id = 11
+
+SELECT * FROM Booking WHERE booking_id = 11
+GO
+
+
 
 
 --TRIGGER FÖR ATT FÖRHINDRA DUBBELBOKNING AV RUM
