@@ -35,10 +35,10 @@ CREATE LOGIN hotel_guest WITH PASSWORD = 'guestPass01'
 CREATE USER hotel_guest FOR LOGIN hotel_guest;
 GO
 
-GRANT EXECUTE ON OBJECT::display_feedback_and_average_rating TO hotel_guest; -- GRANT EXECUTE ON display_feedback_and_average_rating TO hotel_guest
+GRANT EXECUTE ON OBJECT::display_feedback_and_average_rating TO hotel_guest;
 GO
 
-GRANT EXECUTE ON OBJECT::write_review TO hotel_guest; -- GRANT EXECUTE ON display_feedback_and_average_rating TO hotel_guest
+GRANT EXECUTE ON OBJECT::write_review TO hotel_guest;
 GO
 
 DROP USER hotel_admin;
@@ -53,30 +53,10 @@ GO
 
 
 
-
-
-
-/*
--- Görs inloggad som sa.
--- Skapar ett nytt inlogg för användare demouser till SERVER.
-CREATE LOGIN demouser WITH PASSWORD = 'P@ssw0rd';
-GO
-
--- Skapar en användare för aktuell DATABAS (se USE).
-CREATE USER demouser1 FOR LOGIN demouser;
-GO
-
--- Tilldelar demouser1 CRUD-funktionalitet.
-GRANT CONTROL TO demouser1 
-
-SELECT * FROM users;
-*/
-
-
 ----------------------------------------------- PROCEDURES
 
--- Visar användarnas snittbetyg.
--- Eftersom IDENTITY helt plötsligt hoppar från t.ex. 20 till 1021 så fungerar inte proceduren alltid som tänkt.
+
+-- Visar hotellets snittbetyg och gästers feedback.
 CREATE PROCEDURE display_feedback_and_average_rating
 AS
 DECLARE @counter INT
@@ -88,22 +68,27 @@ BEGIN
     PRINT 'Hotellets medelbetyg: ' + CAST(@average AS VARCHAR(10))
     PRINT '---------------'
 END
-WHILE (SELECT COUNT(feedback_id) FROM Feedback) - @counter >= 0
+WHILE @counter <= (SELECT MAX(feedback_id) FROM Feedback)
 BEGIN
-    SET @feedback_id = (SELECT feedback_id FROM Feedback WHERE feedback_id = @counter)
-    SET @reviewer = (SELECT reviewer FROM Feedback WHERE feedback_id = @counter)
-    SET @comment = (SELECT comment FROM Feedback WHERE feedback_id = @counter)
-    SET @score = (SELECT score FROM Feedback WHERE feedback_id = @counter)
-    PRINT CAST(@feedback_id AS VARCHAR (10)) + ' * Reviewer: ' + @reviewer + ' * Comment: ' + @comment + ' * Score: ' + CAST(@score AS NVARCHAR(10))
-    PRINT '---------------'
-    SET @counter = @counter + 1;
+    IF (SELECT feedback_id FROM Feedback WHERE feedback_id = @counter) IS NOT NULL
+    BEGIN
+        SET @feedback_id = (SELECT feedback_id FROM Feedback WHERE feedback_id = @counter)
+        SET @reviewer = (SELECT reviewer FROM Feedback WHERE feedback_id = @counter)
+        SET @comment = (SELECT comment FROM Feedback WHERE feedback_id = @counter)
+        SET @score = (SELECT score FROM Feedback WHERE feedback_id = @counter)
+        PRINT CAST(@feedback_id AS VARCHAR (10)) + ' * Reviewer: ' + @reviewer + ' * Comment: ' + @comment + ' * Score: ' + CAST(@score AS NVARCHAR(10))
+        PRINT '---------------'
+        SET @counter = @counter + 1
+    END
+    ELSE 
+    BEGIN
+        SET @counter = @counter + 1
+    END
 END;
 GO
 
 EXECUTE display_feedback_and_average_rating;
 GO
-
-DROP DATABASE Hotel
 
 drop PROCEDURE display_feedback_and_average_rating;
 GO
@@ -111,28 +96,26 @@ GO
 -- Feedback rad 11 saknar reviewer
 
 
--- TRY CATCH fungerar inte
 CREATE PROCEDURE write_review @reviewer NVARCHAR(50), @comment NVARCHAR(500), @score INT 
 AS 
-BEGIN TRY
     IF (@score < 1 OR @score > 5)
-    PRINT 'The score has to be between 1 and 5.'
+    BEGIN
+        PRINT 'The score has to be between 1 and 5.'
+    END
     ELSE
-    INSERT INTO Feedback (reviewer, comment, score) VALUES (@reviewer, @comment, @score)
-END TRY
-BEGIN CATCH
-    SELECT ERROR_MESSAGE() AS ErrorMessage;
-END CATCH;
+    BEGIN
+        INSERT INTO Feedback (reviewer, comment, score) VALUES (@reviewer, @comment, @score)
+    END
 GO
 
+
 --EXECUTE write_review @reviewer = 'namn', @comment = 'kommentar', @score = betyg 1- 5 som INT;
-EXECUTE write_review @reviewer = 'A name', @comment = 'A comment', @score = 5;
+EXECUTE write_review @reviewer = 'A reviewer', @comment = 'A comment', @score = 5;
 GO
 
 DROP PROCEDURE write_review;
 GO
 
--- Tänk på att feedback_id ökar varje gång även om raden tas bort.
 DELETE FROM Feedback
 WHERE feedback_id = 1023;
 GO
@@ -141,6 +124,13 @@ select * from Feedback
 GO
 
 
+CREATE PROCEDURE delete_review @feedback_id INT
+AS
+DELETE FROM Feedback WHERE feedback_id = @feedback_id;
+GO
+
+EXECUTE delete_review @feedback_id = 22;
+GO
 
 --SKAPAR FAKTURA FÖR ETT RUM
 CREATE PROCEDURE create_room_bill (@Room_NR INT, @discount_id INT)
