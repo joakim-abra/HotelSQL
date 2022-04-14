@@ -395,6 +395,12 @@ HAVING count(room_id)>1
 
 -- VIEWS
 
+CREATE VIEW room_overview
+AS
+SELECT r.room_NR, rt.name, r.floor, rt.nr_of_beds, rt.balcony, rt.price, rt.[description] FROM Room r 
+INNER JOIN Room_type rt ON R.room_room_type_id = rt.room_type_id
+GO
+
 CREATE VIEW Bokings_person_och_rum
 AS
 SELECT c.first_name, c.last_name, ro.room_NR, b.booking_id
