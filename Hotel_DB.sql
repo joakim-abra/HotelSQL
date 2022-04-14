@@ -10,17 +10,17 @@ GO
 -- DROP DATABASE Hotel
 -- GO
 
-
+--ANSTÄLLDA
 CREATE TABLE Employees(
     employee_ID INT IDENTITY PRIMARY KEY,
     first_name NVARCHAR(20),
     last_name NVARCHAR(50),
     position NVARCHAR(20),
-    signature NVARCHAR(20) UNIQUE
+    signature NVARCHAR(3) UNIQUE
 )
 GO
 
-
+--GÄSTER
 CREATE TABLE Customer(
     ID INT IDENTITY PRIMARY KEY,
     first_name NVARCHAR(20),
@@ -34,13 +34,14 @@ CREATE TABLE Customer(
 );
 GO
 
+--BETALNINGSMETODER
 CREATE TABLE payment_methods(
     method_id INT IDENTITY PRIMARY KEY,
     method_name NVARCHAR(20)
 );
 GO
 
-
+--RUMSTYPER
 CREATE TABLE Room_type(
     room_type_id INT IDENTITY PRIMARY KEY,
     name NVARCHAR(30),
@@ -52,7 +53,7 @@ CREATE TABLE Room_type(
 GO
 
 
-
+--RUM
 CREATE TABLE Room(
     room_NR INT IDENTITY PRIMARY KEY,
     room_room_type_id INT FOREIGN KEY REFERENCES Room_type(room_type_id),
@@ -61,7 +62,7 @@ CREATE TABLE Room(
 );
 GO
 
-
+--BOKNINGAR
 CREATE TABLE Booking(
     booking_id INT IDENTITY PRIMARY KEY,
     contact_id INT FOREIGN KEY REFERENCES Customer(ID),
@@ -76,7 +77,7 @@ CREATE TABLE Booking(
 );
 GO
 
-
+--GÄSTER TILL BOKNING
 CREATE TABLE Guest_booking(
     id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer (ID),
@@ -84,7 +85,7 @@ CREATE TABLE Guest_booking(
 );
 GO
 
-
+--RUM FÖR BOKNING
 CREATE TABLE Rooms_booked(
     booked_rooms_id INT IDENTITY PRIMARY KEY,
     room_id INT FOREIGN KEY REFERENCES Room(room_NR),
@@ -94,6 +95,7 @@ CREATE TABLE Rooms_booked(
 );
 GO
 
+--RABATTER FÖR RUM
 CREATE TABLE discount(
     discount_id INT IDENTITY PRIMARY KEY,
     discount_code NVARCHAR(30),
@@ -101,6 +103,7 @@ CREATE TABLE discount(
 );
 GO
 
+--RUMSRÄKNING
 CREATE TABLE room_bill(
     amount DECIMAL,
     bill_id INT IDENTITY PRIMARY KEY,
@@ -110,7 +113,7 @@ CREATE TABLE room_bill(
 GO
 
 
-
+--TOTAL RÄKNING FÖR BOKNING
 CREATE TABLE total_booking_bill
 (
     id INT IDENTITY PRIMARY KEY,
@@ -121,7 +124,7 @@ CREATE TABLE total_booking_bill
 );
 GO
 
-
+--MEDDELANDEN
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customer(ID),
@@ -133,7 +136,7 @@ CREATE TABLE Messages(
 );
 GO
 
-
+--RECENSIONER
 CREATE TABLE Feedback(
     feedback_id INT IDENTITY PRIMARY KEY,
     reviewer NVARCHAR(50),
@@ -142,6 +145,7 @@ CREATE TABLE Feedback(
 );
 GO
 
+--INCHECKNINGAR
 CREATE TABLE check_in_log(
 log_id INT IDENTITY PRIMARY KEY,
 booking_id INT UNIQUE FOREIGN KEY REFERENCES booking(booking_id),

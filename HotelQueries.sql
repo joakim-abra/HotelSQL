@@ -133,33 +133,14 @@ EXECUTE delete_review @feedback_id = 22;
 GO
 
 --SKAPAR FAKTURA FÖR ETT RUM
-CREATE PROCEDURE create_room_bill (@Room_NR INT, @discount_id INT)
+CREATE PROCEDURE create_room_bill (@Room_NR INT, @discount_id INT, @rooms_booking_id INT)
 AS
 DECLARE @amount DECIMAL
-DECLARE @booking_id INT = (SELECT rb.booked_rooms_id FROM Rooms_booked rb WHERE @Room_NR = rb.room_id)
 SET @amount = (SELECT r.room_price FROM Room r WHERE @Room_NR = r.room_NR)
 SET @amount = @amount - (@amount*(SELECT d.discount_amount FROM Discount d WHERE @discount_id = d.discount_id))
-SET @amount = @amount *(SELECT b.num_of_night FROM booking b WHERE booking_id = (SELECT rb.room_belongs_to_booking_id FROM Rooms_booked rb WHERE @Room_NR = rb.room_id))
-INSERT INTO room_bill (amount,room_discount_id,booked_room_ID) VALUES (@amount, @discount_id, @booking_id)
+SET @amount = @amount *(SELECT b.num_of_night FROM booking b WHERE booking_id = (SELECT rb.room_belongs_to_booking_id FROM Rooms_booked rb WHERE @Room_NR = rb.room_id AND rb.room_belongs_to_booking_id=@rooms_booking_id))
+INSERT INTO room_bill (amount,room_discount_id,booked_room_ID) VALUES (@amount, @discount_id, @rooms_booking_id)
 GO
-
-DROP PROCEDURE create_room_bill
-
-EXEC create_room_bill 229,2
-EXEC create_room_bill 230,1
-
-TRUNCATE TABLE room_bill
-
-SELECT SUM(amount) FROM room_bill rb
-JOIN Rooms_booked roob
-ON rb.booked_room_ID = roob.booked_rooms_id
-WHERE roob.room_belongs_to_booking_id = 11
-GO
-
-SELECT * FROM Booking
-WHERE booking_id = 11
-GO
-
 
 
 --SKAPAR TOTAL RÄKNING FÖR BOKNING
@@ -180,16 +161,9 @@ INSERT INTO total_booking_bill(total_amount,
     reference_number,
     booking_id_bill) VALUES (@totalsum,@payment_method_id,@reference_number,@booking_id
 );
-
-
-
-
-EXEC create_total_bill_ 11,3
-
-SELECT * FROM total_booking_bill
-
-SELECT * FROM Rooms_booked
 GO
+
+
 
 
 --PROCEDUR FÖR ATT SÄTTA NO_SHOW/"AVBOKNING" (egentligen gör att triggern som kollar rum och datum släpper igenom ny rumsbokning)
@@ -232,12 +206,7 @@ GO
 SELECT * FROM Booking WHERE booking_id = 11
 GO
 
-UPDATE Booking
-SET check_out_date = '2022-04-13 14:00'
-WHERE booking_id = 11 
 
-EXEC Check_In 12
-GO
 ------------------------------------------------------------ TRIGGERS
 
 
@@ -277,6 +246,18 @@ WHERE booking_id = 11
 SELECT * FROM Booking WHERE booking_id = 11
 GO
 
+-- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00. (För att slippa skriva in detta)
+CREATE TRIGGER check_in_out_time_default
+ON booking
+FOR INSERT
+AS
+    BEGIN
+        UPDATE Booking
+        SET check_in_date = DATEADD(hour, 14, check_in_date), 
+            check_out_date = DATEADD(hour, 11, check_out_date)  
+         WHERE booking_id = (SELECT booking_id FROM inserted)
+    END
+GO
 
 
 
@@ -327,23 +308,35 @@ GO
 drop TRIGGER availability_checker;
 GO
 
+sp_settriggerorder @triggername= 'check_in_out_time_default', @order='First', @stmttype = 'INSERT';
+GO 
+sp_settriggerorder @triggername= 'availability_check2', @order='Last', @stmttype = 'INSERT'; 
+GO
 
+SELECT * FROM booking
+LEFT JOIN Rooms_booked ON booking_id = room_belongs_to_booking_id
+WHERE Rooms_booked.room_id >= 230
 
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (16, 4, '2022-04-09', '2022-04-13',0, 10, 1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (201, 15, 0,1);
 
---FUNKAR INTE
+GO
+/*
 CREATE TRIGGER availability_check2
 ON rooms_booked
 FOR INSERT, UPDATE
 AS
     BEGIN
-        IF ((SELECT i.room_id FROM inserted i) IN (SELECT rb.room_id FROM Rooms_booked rb))
+        IF EXISTS( SELECT i.room_id FROM inserted i WHERE i.room_id IN (SELECT rb.room_id FROM Rooms_booked rb))
             BEGIN
-                IF ((SELECT b.check_in_date FROM Booking b WHERE b.booking_id = (SELECT i.room_belongs_to_booking_id FROM inserted i)) BETWEEN (SELECT b2.check_in_date FROM booking b2 WHERE b2.booking_id = 
-                (SELECT rb2.room_belongs_to_booking_id FROM Rooms_booked rb2 WHERE rb2.room_id IN (SELECT i.room_id FROM inserted i))) AND (SELECT b2.check_out_date FROM booking b2 WHERE b2.booking_id = 
-                (SELECT rb3.room_belongs_to_booking_id FROM Rooms_booked rb3 WHERE  rb3.room_id IN (SELECT i.room_id FROM inserted i))))
+                IF EXISTS(SELECT b.check_in_date FROM Booking b WHERE b.booking_id = (SELECT i.room_belongs_to_booking_id FROM inserted i) 
+                AND b.check_in_date BETWEEN (SELECT TOP 1 b2.check_in_date FROM booking b2 WHERE b2.booking_id = 
+                (SELECT rb2.room_belongs_to_booking_id FROM Rooms_booked rb2 WHERE rb2.room_id = (SELECT i.room_id FROM inserted i) AND rb2.room_belongs_to_booking_id <> (SELECT i.room_belongs_to_booking_id FROM inserted i)) ORDER BY b2.check_in_date) 
+                AND (SELECT TOP 1 b2.check_out_date FROM booking b2 WHERE b2.booking_id = 
+                (SELECT rb2.room_belongs_to_booking_id FROM Rooms_booked rb2 WHERE rb2.room_id = (SELECT i.room_id FROM inserted i) AND rb2.room_belongs_to_booking_id <>(SELECT i.room_belongs_to_booking_id FROM inserted i))ORDER BY b2.check_out_date DESC))
                     BEGIN
                     ROLLBACK TRANSACTION
-                       PRINT 'GÅR EJ ATT GENOMFÖRA DENNA BOKNING EFTERSOM ETT RUM ÄR UPPTAGET'
+                       PRINT 'GÅR EJ ATT GENOMFÖRA DENNA BOKNING EFTERSOM RUMMET ÄR UPPTAGET'
                     END
             END
         ELSE
@@ -353,30 +346,52 @@ AS
             END    
     END
 GO                        
+*/
 
-
--- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00.
-CREATE TRIGGER check_in_out_time_default
-ON booking
-FOR INSERT
+ALTER TRIGGER availability_check2
+ON rooms_booked
+AFTER INSERT,UPDATE
 AS
-    BEGIN
-        UPDATE Booking
-        SET check_in_date = DATEADD(hour, 14, check_in_date) 
-        , check_out_date = DATEADD(hour, 11, check_out_date)   
-        WHERE booking_id = (SELECT booking_id FROM inserted)
-    END
-GO
+
+                IF EXISTS (SELECT b1.check_in_date FROM booking b1
+                   JOIN inserted i
+                   ON i.room_belongs_to_booking_id = b1.booking_id
+                   WHERE i.room_id IN (SELECT rb.room_id FROM Rooms_booked rb ) AND b1.check_in_date BETWEEN
+                   (SELECT TOP 1 b2.check_in_date FROM booking b2
+                   JOIN Rooms_booked rb 
+                   ON rb.room_belongs_to_booking_id = b2.booking_id
+                   WHERE rb.room_id = i.room_id
+                   ORDER BY b2.check_in_date DESC)
+                   AND 
+                   (SELECT TOP 1 b2.check_out_date FROM booking b2
+                   JOIN Rooms_booked rb 
+                   ON rb.room_belongs_to_booking_id = b2.booking_id
+                   WHERE rb.room_id = i.room_id
+                   ORDER BY b2.check_out_date DESC))
+                    BEGIN
+                        PRINT 'GÅR EJ ATT GENOMFÖRA DENNA BOKNING EFTERSOM RUMMET ÄR UPPTAGET'
+                        PRINT ''
+                        PRINT ''
+                        ROLLBACK TRANSACTION
+                    END
+        ELSE
+            BEGIN
+                -- INSERT INTO Rooms_booked(room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) 
+                -- SELECT i.room_id,i.room_belongs_to_booking_id,i.extra_bed,i.number_of_guests FROM inserted i;
+                PRINT 'RUM BOKAT'
+            END    
+GO                        
 
 
-SELECT * FROM Booking WHERE booking_id = 11
+SELECT * FROM Rooms_booked
+SELECT * FROM Booking b
+JOIN Rooms_booked rb 
+ON b.booking_id = rb.room_belongs_to_booking_id
 
+SELECT room_id FROM Rooms_booked rb
+GROUP BY room_id
+HAVING count(room_id)>1
 
-
-SELECT b.booking_id,rb.room_id FROM booking b 
-INNER JOIN rooms_booked rb ON b.booking_id = rb.room_belongs_to_booking_id
-INNER JOIN Room r ON rb.room_id=r.room_NR
-GO
 
 -- VIEWS
 
