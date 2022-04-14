@@ -208,7 +208,7 @@ SELECT * FROM Booking WHERE booking_id = 11
 GO
 
 
------------------------------------------------------------- TRIGGERS
+----------------- TRIGGERS-----------------
 
 
 --SKAPAR DATA FÖR LATE_ARRIVAL_TIMER I BOOKING GENOM INSERT TILL CHECK-LOG (INCHECKNING)
@@ -222,7 +222,8 @@ BEGIN
     IF ((SELECT log_check_in FROM inserted)-(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))>0)
         BEGIN
             UPDATE Booking
-            SET late_arrival_timer = (DATEDIFF (hour, (SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i)),(SELECT log_check_in FROM inserted)))
+            SET late_arrival_timer = (DATEDIFF (hour, (SELECT check_in_date FROM booking WHERE booking_id = 
+                                    (SELECT i.booking_id FROM inserted i)),(SELECT log_check_in FROM inserted)))
             WHERE booking_id = (SELECT i.booking_id FROM inserted i)
         END
     END
@@ -263,136 +264,35 @@ GO
 
 
 --TRIGGER FÖR ATT FÖRHINDRA DUBBELBOKNING AV RUM
-SELECT * FROM Booking 
-GO
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer, no_show, employee_ref, prepaid) values (2, 7, '2021-05-18', '2021-05-18','2023-05-23',0,9, 1);
-GO
-
-CREATE TRIGGER availability_checker 
-ON Booking
-FOR INSERT
-AS
-    IF EXISTS(
-                SELECT check_in_date FROM inserted 
-                WHERE check_in_date 
-                BETWEEN 
-                        (SELECT b.check_in_date FROM Booking b
-                        INNER JOIN Rooms_booked rb
-                        ON b.booking_id =  rb.room_belongs_to_booking_id
-                        INNER JOIN Room r 
-                        ON rb.room_id = r.room_NR
-                        WHERE room_NR = 1)
-                AND
-                        (SELECT b.check_out_date FROM Booking b
-                        INNER JOIN Rooms_booked rb
-                        ON b.booking_id =  rb.room_belongs_to_booking_id
-                        INNER JOIN Room r 
-                        ON rb.room_id = r.room_NR
-                        WHERE room_NR = 1)
-            )
-            BEGIN
-                ROLLBACK TRANSACTION
-                PRINT 'Rummet är redan bokat.' -- lägg till datum här, kanske. Eller ha ett RaiseError ... 
-            END
-    ELSE
-        BEGIN
-            --COMMIT TRANSACTION
-            PRINT 'Bokning registrerad.'
-        END;
+CREATE TRIGGER room_check
+ON rooms_booked
+FOR INSERT, UPDATE
+AS IF EXISTS((SELECT i.room_id FROM inserted i WHERE i.room_id IN
+            (SELECT rb.room_id FROM Rooms_booked rb
+            JOIN booking b 
+            ON b.booking_id = rb.room_belongs_to_booking_id
+            WHERE b.check_out_date> (SELECT b2.check_in_date FROM Booking b2 WHERE b2.booking_id = i.room_belongs_to_booking_id) 
+            AND b.booking_id <> i.room_belongs_to_booking_id)))
+                BEGIN
+                    ROLLBACK TRANSACTION
+                    PRINT 'RUMMET ÄR UPPTAGET'
+                END
 GO
 
-
-delete from Booking where booking_id = 16
-select * from Booking
-GO
-
-drop TRIGGER availability_checker;
-GO
-
-sp_settriggerorder @triggername= 'check_in_out_time_default', @order='First', @stmttype = 'INSERT';
-GO 
-sp_settriggerorder @triggername= 'availability_check2', @order='Last', @stmttype = 'INSERT'; 
-GO
+SELECT * FROM Rooms_booked
 
 SELECT * FROM booking
 LEFT JOIN Rooms_booked ON booking_id = room_belongs_to_booking_id
-WHERE Rooms_booked.room_id >= 230
+WHERE Rooms_booked.room_id = 230
 
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (16, 4, '2022-04-09', '2022-04-13',0, 10, 1);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (201, 15, 0,1);
-
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (16, 4, '2022-04-08', '2022-04-13',0, 10, 1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (230, 13, 0,1);
 GO
-/*
-CREATE TRIGGER availability_check2
-ON rooms_booked
-FOR INSERT, UPDATE
-AS
-    BEGIN
-        IF EXISTS( SELECT i.room_id FROM inserted i WHERE i.room_id IN (SELECT rb.room_id FROM Rooms_booked rb))
-            BEGIN
-                IF EXISTS(SELECT b.check_in_date FROM Booking b WHERE b.booking_id = (SELECT i.room_belongs_to_booking_id FROM inserted i) 
-                AND b.check_in_date BETWEEN (SELECT TOP 1 b2.check_in_date FROM booking b2 WHERE b2.booking_id = 
-                (SELECT rb2.room_belongs_to_booking_id FROM Rooms_booked rb2 WHERE rb2.room_id = (SELECT i.room_id FROM inserted i) AND rb2.room_belongs_to_booking_id <> (SELECT i.room_belongs_to_booking_id FROM inserted i)) ORDER BY b2.check_in_date) 
-                AND (SELECT TOP 1 b2.check_out_date FROM booking b2 WHERE b2.booking_id = 
-                (SELECT rb2.room_belongs_to_booking_id FROM Rooms_booked rb2 WHERE rb2.room_id = (SELECT i.room_id FROM inserted i) AND rb2.room_belongs_to_booking_id <>(SELECT i.room_belongs_to_booking_id FROM inserted i))ORDER BY b2.check_out_date DESC))
-                    BEGIN
-                    ROLLBACK TRANSACTION
-                       PRINT 'GÅR EJ ATT GENOMFÖRA DENNA BOKNING EFTERSOM RUMMET ÄR UPPTAGET'
-                    END
-            END
-        ELSE
-            BEGIN
-                COMMIT TRANSACTION
-                PRINT 'RUM BOKAT'
-            END    
-    END
-GO                        
-*/
-
-ALTER TRIGGER availability_check2
-ON rooms_booked
-AFTER INSERT,UPDATE
-AS
-
-                IF EXISTS (SELECT b1.check_in_date FROM booking b1
-                   JOIN inserted i
-                   ON i.room_belongs_to_booking_id = b1.booking_id
-                   WHERE i.room_id IN (SELECT rb.room_id FROM Rooms_booked rb ) AND b1.check_in_date BETWEEN
-                   (SELECT TOP 1 b2.check_in_date FROM booking b2
-                   JOIN Rooms_booked rb 
-                   ON rb.room_belongs_to_booking_id = b2.booking_id
-                   WHERE rb.room_id = i.room_id
-                   ORDER BY b2.check_in_date DESC)
-                   AND 
-                   (SELECT TOP 1 b2.check_out_date FROM booking b2
-                   JOIN Rooms_booked rb 
-                   ON rb.room_belongs_to_booking_id = b2.booking_id
-                   WHERE rb.room_id = i.room_id
-                   ORDER BY b2.check_out_date DESC))
-                    BEGIN
-                        PRINT 'GÅR EJ ATT GENOMFÖRA DENNA BOKNING EFTERSOM RUMMET ÄR UPPTAGET'
-                        PRINT ''
-                        PRINT ''
-                        ROLLBACK TRANSACTION
-                    END
-        ELSE
-            BEGIN
-                -- INSERT INTO Rooms_booked(room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) 
-                -- SELECT i.room_id,i.room_belongs_to_booking_id,i.extra_bed,i.number_of_guests FROM inserted i;
-                PRINT 'RUM BOKAT'
-            END    
-GO                        
 
 
-SELECT * FROM Rooms_booked
-SELECT * FROM Booking b
-JOIN Rooms_booked rb 
-ON b.booking_id = rb.room_belongs_to_booking_id
 
-SELECT room_id FROM Rooms_booked rb
-GROUP BY room_id
-HAVING count(room_id)>1
-GO
+
+
 
 ------------------------------------------------------------ VIEWS
 
@@ -424,25 +324,37 @@ GO
 -- 3.
 CREATE view user_payment
 AS
-SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, tbb.selected_payment_method FROM Customer c
-INNER JOIN Booking b 
-ON c.ID = b.contact_id
-INNER JOIN total_booking_bill tbb 
-ON b.booking_id = tbb.booking_id_bill
-GO
 
+
+SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, pm.method_name FROM Customer c
+INNER JOIN Booking b ON c.ID = b.contact_id
+LEFT JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
+LEFT JOIN payment_methods pm ON tbb.selected_payment_method = pm.method_id
+
+GO
 SELECT * FROM user_payment
 GO
 
--- 4.
-CREATE VIEW owerview_booking AS
+
+--view med bokningar som är utchekade
+CREATE VIEW owerview_done_bookings AS
+
 SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
 FROM Booking AS b
 INNEr JOIN Customer AS c
 ON b.contact_id = c.ID
+WHERE check_out_date < GETDATE()
 GO
 
-SELECT * FROM owerview_booking
+SELECT * FROM owerview_done_bookings
+GO
+
+CREATE VIEW owerview_going_bookings AS
+SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
+FROM Booking AS b
+LEFT JOIN Customer AS c
+ON b.contact_id = c.ID
+WHERE check_out_date > GETDATE()
 GO
 
 -- 5. Vilken bokning som har vilka gäster.
@@ -472,8 +384,11 @@ GO
 SELECT * FROM rooms_booked_by;
 GO
 
-        -- EJ KLAR, KAN INTE HA ORDER BY HELLER I EN VIEW
--- 7. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
+
+
+
+--SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
+
 SELECT b.booking_id, b.check_in_date, b.check_out_date, c.first_name, c.last_name, r.room_NR,r.[floor],rt.name
 FROM Customer c 
 JOIN Guest_booking gb ON gb.customer_id = c.ID
