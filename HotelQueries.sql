@@ -53,7 +53,52 @@ GO
 
 
 
------------------------------------------------ PROCEDURES
+----------------------- PROCEDURES -----------------------
+
+
+---Sök efter kund och, mata in datum att kontrollera på status på (för att slippa behöva lägga in/ändra om i data för incheckningar och bokningar/bokningstider)
+--anges inget datum sätts det till dagens varav träffar kommer ha status utcheckade, såvida inte fler bokningar med framtida/aktuella datum skapats.
+--(Kräver att klockslag efter loggad incheckning anges för kontroll för samma dag)
+CREATE PROCEDURE find_customer (@search NVARCHAR(4), @dateToCheck DATETIME = NULL)
+AS
+    IF (@dateToCheck) IS NULL
+        BEGIN
+            SET @dateToCheck = GETDATE()
+        END
+        IF EXISTS(SELECT c.first_name, c.last_name FROM Customer c WHERE c.first_name LIKE '%'+@search+'%' OR c.last_name LIKE '%'+@search+'%')
+        BEGIN
+    SELECT c.first_name 'Förnamn',c.last_name 'Efternamn', r.[floor] 'Våning',r.room_NR 'Rumsnummer', b.num_of_night 'Antal nätter', b.check_out_date,cl.log_check_in ,
+    CASE WHEN b.check_out_date < @dateToCheck THEN 'utcheckad'
+         WHEN b.check_in_date>@dateToCheck AND @dateToCheck< (SELECT cl.log_check_in FROM check_in_log cl WHERE cl.booking_id = b.booking_id) THEN 'Ej incheckad'
+         WHEN b.check_out_date> @dateToCheck AND @dateToCheck>= (SELECT cl.log_check_in FROM check_in_log cl WHERE cl.booking_id = b.booking_id) THEN 'incheckad'
+    END AS status     
+    FROM Customer c 
+    JOIN Guest_booking gb ON gb.customer_id = c.ID
+    JOIN Rooms_booked rb ON rb.room_belongs_to_booking_id = gb.belongs_to_booking_id
+    JOIN Room r ON r.room_NR = rb.room_id
+    JOIN Booking b ON b.booking_id = rb.room_belongs_to_booking_id
+    JOIN check_in_log cl ON cl.booking_id = b.booking_id
+    WHERE c.first_name LIKE '%'+@search+'%' OR c.last_name LIKE '%'+@search+'%'
+    END
+    ELSE 
+        BEGIN
+            PRINT 'Inga träffar'
+        END    
+GO
+
+EXEC find_customer 'er'
+GO
+EXEC find_customer 'er', '2022-03-09'
+GO
+
+EXEC find_customer 'er', '2022-03-09 14:15'
+GO
+
+
+
+
+
+
 
 
 -- Visar hotellets snittbetyg och gästers feedback.
