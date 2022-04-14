@@ -374,11 +374,17 @@ SELECT * FROM Booking WHERE booking_id = 11
 
 
 SELECT b.booking_id,rb.room_id FROM booking b 
-JOIN rooms_booked rb
-ON b.booking_id = rb.room_belongs_to_booking_id
+INNER JOIN rooms_booked rb ON b.booking_id = rb.room_belongs_to_booking_id
+INNER JOIN Room r ON rb.room_id=r.room_NR
 GO
 
 -- VIEWS
+
+CREATE VIEW room_overview
+AS
+SELECT r.room_NR, rt.name, r.floor, rt.nr_of_beds, rt.balcony, rt.price, rt.[description] FROM Room r 
+INNER JOIN Room_type rt ON R.room_room_type_id = rt.room_type_id
+GO
 
 CREATE VIEW Bokings_person_och_rum
 AS
