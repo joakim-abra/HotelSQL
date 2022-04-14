@@ -638,3 +638,17 @@ INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_i
 INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (1500, 3, 10);
 INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (7200, 3, 11);
 GO
+
+
+--Incheckningar
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (1,'2021-05-16 14:05')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (2,'2021-12-06 14:01')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (3,'2022-02-09 14:25')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (4,'2021-06-13 14:11')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (5,'2021-08-17 14:45')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (6,'2022-03-09 14:10')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (7,'2021-12-06 14:01')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (8,'2021-09-23 14:02')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (9,'2022-04-05 14:31')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (10,'2022-04-06 14:02')
+
