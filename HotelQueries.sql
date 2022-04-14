@@ -303,7 +303,8 @@ SELECT r.room_NR, rt.name, r.floor, rt.nr_of_beds, rt.balcony, rt.price, rt.[des
 INNER JOIN Room_type rt ON R.room_room_type_id = rt.room_type_id
 GO
 
-select * from room_overview
+select * from room_overview;
+GO
 
 -- 2.
 CREATE VIEW Bokings_person_och_rum
@@ -318,27 +319,24 @@ INNER JOIN Room AS ro
 ON r.room_id = ro.room_NR
 GO
 
-SELECT * FROM Bokings_person_och_rum
+SELECT * FROM Bokings_person_och_rum;
 GO
 
 -- 3.
 CREATE view user_payment
 AS
-
-
 SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, pm.method_name FROM Customer c
 INNER JOIN Booking b ON c.ID = b.contact_id
 LEFT JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
 LEFT JOIN payment_methods pm ON tbb.selected_payment_method = pm.method_id
-
-GO
-SELECT * FROM user_payment
 GO
 
+SELECT * FROM user_payment;
+GO
 
---view med bokningar som är utchekade
+
+-- 4. view med bokningar som är utchekade
 CREATE VIEW owerview_done_bookings AS
-
 SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
 FROM Booking AS b
 INNEr JOIN Customer AS c
@@ -346,9 +344,10 @@ ON b.contact_id = c.ID
 WHERE check_out_date < GETDATE()
 GO
 
-SELECT * FROM owerview_done_bookings
+SELECT * FROM owerview_done_bookings,
 GO
 
+-- 5.
 CREATE VIEW owerview_going_bookings AS
 SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
 FROM Booking AS b
@@ -357,7 +356,10 @@ ON b.contact_id = c.ID
 WHERE check_out_date > GETDATE()
 GO
 
--- 5. Vilken bokning som har vilka gäster.
+SELECT * FROM owerview_going_bookings;
+GO
+
+-- 6. Vilken bokning som har vilka gäster.
 CREATE VIEW guests_part_of_booking
 AS
 SELECT b.booking_id,b.contact_id, c.ID AS customer_id, c.first_name, c.last_name FROM Guest_booking gb
@@ -371,7 +373,7 @@ GO
 SELECT * FROM guests_part_of_booking;
 GO
 
--- 6. Vilken bokning som har bokat vilka rum och av vem.
+-- 7. Vilken bokning som har bokat vilka rum och av vem.
 CREATE VIEW rooms_booked_by
 AS
 SELECT rb.room_id, rb.number_of_guests, b.booking_id, c.ID AS customer_id, c.first_name, c.last_name FROM Rooms_booked rb 
@@ -386,8 +388,8 @@ GO
 
 
 
-
---SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
+-- EJ KLAR. ORDER BY GÅR INTE I VIEW
+-- 8. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
 
 SELECT b.booking_id, b.check_in_date, b.check_out_date, c.first_name, c.last_name, r.room_NR,r.[floor],rt.name
 FROM Customer c 
@@ -400,7 +402,7 @@ JOIN Room_type rt ON rt.room_type_id = r.room_room_type_id
 ORDER BY r.room_NR
 GO
 
--- 8. De bokade rum som har fått rabatt.
+-- 9. De bokade rum som har fått rabatt.
 CREATE VIEW room_with_discount
 AS
 SELECT r.room_NR, d.discount_code, b.booking_id FROM Booking b
@@ -418,7 +420,7 @@ GO
 SELECT * FROM room_with_discount;
 GO
 
--- 9. Meddelanden från vilket rum och vem som bokat.
+-- 10. Meddelanden från vilket rum och vem som bokat.
 CREATE VIEW comment_room_guest
 AS
 SELECT m.comment, r.room_NR, c.last_name, c.first_name FROM Messages m
@@ -429,13 +431,13 @@ ON b.contact_id = c.ID
 INNER JOIN Rooms_booked rb
 ON b.booking_id = rb.room_belongs_to_booking_id
 INNER JOIN Room r 
-ON rb.room_id = r.room_NR
+ON rb.room_id = r.room_NR;
 GO
 
 SELECT * FROM comment_room_guest;
 GO
 
--- 10. Vem i personalen som har tagit hand om en bokning.
+-- 11. Vem i personalen som har tagit hand om en bokning.
 CREATE VIEW booking_handled_by_which_employee
 AS
 SELECT b.booking_id, c.ID AS customer_id, e.last_name, e.first_name, e.[position] FROM Booking b
@@ -448,7 +450,7 @@ GO
 SELECT * FROM booking_handled_by_which_employee;
 GO
 
--- 11. De fem incheckningar som ligger senast i tiden.
+-- 12. De fem incheckningar som ligger senast i tiden.
 CREATE VIEW top_5_check_in_ordered_by_latest
 AS
 SELECT TOP 5 (b.check_in_date), b.booking_id, c.last_name, c.first_name FROM Booking b
@@ -460,7 +462,7 @@ GO
 SELECT * FROM top_5_check_in_ordered_by_latest;
 GO
 
--- 12. De rum och den bokning som har beställt extrasäng.
+-- 13. De rum och den bokning som har beställt extrasäng.
 CREATE VIEW room_with_extra_bed
 AS
 SELECT rb.extra_bed, r.room_NR, b.booking_id FROM Rooms_booked rb
@@ -472,4 +474,36 @@ WHERE rb.extra_bed <> 0;
 GO
 
 SELECT * FROM room_with_extra_bed;
+GO
+
+-- 14. Rum med kommande bokning.
+CREATE VIEW future_booked_room
+AS
+SELECT r.room_NR, b.check_in_date FROM Room r
+INNER JOIN Rooms_booked rb 
+ON r.room_NR = rb.room_id
+INNER JOIN Booking b 
+ON rb.room_belongs_to_booking_id = b.booking_id
+WHERE b.check_in_date > GETDATE();
+GO
+
+select * from future_booked_room;
+GO
+
+--  15. Visar förskottsbetalda rum (BIT) och betalningsmetod
+CREATE VIEW prepaid_rooms_and_payment_type
+AS
+SELECT r.room_NR, b.prepaid, pm.method_name FROM Room r
+INNER JOIN Rooms_booked rb 
+ON r.room_NR = rb.room_id
+INNER JOIN Booking b 
+ON rb.room_belongs_to_booking_id = b.booking_id
+INNER JOIN total_booking_bill tb 
+ON b.booking_id = tb.booking_id_bill
+INNER JOIN payment_methods pm 
+ON tb.selected_payment_method = pm.method_id
+WHERE prepaid <> 0;
+GO
+
+SELECT * FROM prepaid_rooms_and_payment_type;
 GO
