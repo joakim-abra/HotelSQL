@@ -317,22 +317,32 @@ GO
 
 CREATE view user_payment
 AS
-SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, tbb.selected_payment_method FROM Customer c
+SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, pm.method_name FROM Customer c
 INNER JOIN Booking b ON c.ID = b.contact_id
 LEFT JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
+LEFT JOIN payment_methods pm ON tbb.selected_payment_method = pm.method_id
 GO
-
 SELECT * FROM user_payment
 GO
 
-CREATE VIEW owerview_booking AS
+--view med bokningar som är utchekade
+CREATE VIEW owerview_done_bookings AS
 SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
 FROM Booking AS b
 LEFT JOIN Customer AS c
 ON b.contact_id = c.ID
+WHERE check_out_date < GETDATE()
 GO
 
-SELECT * FROM owerview_booking
+SELECT * FROM owerview_done_bookings
+GO
+
+CREATE VIEW owerview_going_bookings AS
+SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
+FROM Booking AS b
+LEFT JOIN Customer AS c
+ON b.contact_id = c.ID
+WHERE check_out_date > GETDATE()
 GO
 -- OBS! EJ FÄRDIGA VIEWS NEDAN
 
@@ -352,7 +362,6 @@ ON rb.room_belongs_to_booking_id = b.booking_id
 INNER JOIN Customer c 
 ON b.contact_id = c.ID
 GO
-
 
 
 
