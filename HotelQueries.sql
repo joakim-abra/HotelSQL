@@ -138,7 +138,8 @@ AS
 DECLARE @amount DECIMAL
 SET @amount = (SELECT r.room_price FROM Room r WHERE @Room_NR = r.room_NR)
 SET @amount = @amount - (@amount*(SELECT d.discount_amount FROM Discount d WHERE @discount_id = d.discount_id))
-SET @amount = @amount *(SELECT b.num_of_night FROM booking b WHERE booking_id = (SELECT rb.room_belongs_to_booking_id FROM Rooms_booked rb WHERE @Room_NR = rb.room_id AND rb.room_belongs_to_booking_id=@rooms_booking_id))
+SET @amount = @amount *(SELECT b.num_of_night FROM booking b WHERE booking_id = (SELECT rb.room_belongs_to_booking_id FROM Rooms_booked rb 
+WHERE @Room_NR = rb.room_id AND rb.booked_rooms_id=@rooms_booking_id))
 INSERT INTO room_bill (amount,room_discount_id,booked_room_ID) VALUES (@amount, @discount_id, @rooms_booking_id)
 GO
 
@@ -391,16 +392,20 @@ ON b.booking_id = rb.room_belongs_to_booking_id
 SELECT room_id FROM Rooms_booked rb
 GROUP BY room_id
 HAVING count(room_id)>1
+GO
 
+------------------------------------------------------------ VIEWS
 
--- VIEWS
-
+-- 1.
 CREATE VIEW room_overview
 AS
 SELECT r.room_NR, rt.name, r.floor, rt.nr_of_beds, rt.balcony, rt.price, rt.[description] FROM Room r 
 INNER JOIN Room_type rt ON R.room_room_type_id = rt.room_type_id
 GO
 
+select * from room_overview
+
+-- 2.
 CREATE VIEW Bokings_person_och_rum
 AS
 SELECT c.first_name, c.last_name, ro.room_NR, b.booking_id
@@ -416,49 +421,59 @@ GO
 SELECT * FROM Bokings_person_och_rum
 GO
 
+-- 3.
 CREATE view user_payment
 AS
 SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, tbb.selected_payment_method FROM Customer c
-INNER JOIN Booking b ON c.ID = b.contact_id
-LEFT JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
+INNER JOIN Booking b 
+ON c.ID = b.contact_id
+INNER JOIN total_booking_bill tbb 
+ON b.booking_id = tbb.booking_id_bill
 GO
 
 SELECT * FROM user_payment
 GO
 
+-- 4.
 CREATE VIEW owerview_booking AS
 SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
 FROM Booking AS b
-LEFT JOIN Customer AS c
+INNEr JOIN Customer AS c
 ON b.contact_id = c.ID
 GO
 
 SELECT * FROM owerview_booking
 GO
--- OBS! EJ FÄRDIGA VIEWS NEDAN
 
-
--- Vilken bokning som har vilka gäster.
+-- 5. Vilken bokning som har vilka gäster.
+CREATE VIEW guests_part_of_booking
+AS
 SELECT b.booking_id,b.contact_id, c.ID AS customer_id, c.first_name, c.last_name FROM Guest_booking gb
 INNER JOIN Booking b
 ON gb.belongs_to_booking_id = b.booking_id
-RIGHT JOIN Customer c 
+INNER JOIN Customer c 
 ON gb.customer_id = c.ID
-WHERE booking_id IS NOT NULL
+WHERE booking_id IS NOT NULL;
+GO
 
--- Vilken bokning som har bokat vilka rum och av vem.
+SELECT * FROM guests_part_of_booking;
+GO
+
+-- 6. Vilken bokning som har bokat vilka rum och av vem.
+CREATE VIEW rooms_booked_by
+AS
 SELECT rb.room_id, rb.number_of_guests, b.booking_id, c.ID AS customer_id, c.first_name, c.last_name FROM Rooms_booked rb 
 INNER JOIN Booking b 
 ON rb.room_belongs_to_booking_id = b.booking_id
 INNER JOIN Customer c 
-ON b.contact_id = c.ID
+ON b.contact_id = c.ID;
 GO
 
+SELECT * FROM rooms_booked_by;
+GO
 
-
-
-
---SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
+        -- EJ KLAR, KAN INTE HA ORDER BY HELLER I EN VIEW
+-- 7. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
 SELECT b.booking_id, b.check_in_date, b.check_out_date, c.first_name, c.last_name, r.room_NR,r.[floor],rt.name
 FROM Customer c 
 JOIN Guest_booking gb ON gb.customer_id = c.ID
@@ -468,5 +483,78 @@ JOIN room r ON r.room_NR = rb.room_id
 JOIN Room_type rt ON rt.room_type_id = r.room_room_type_id
 --WHERE b.check_out_date>GETDATE() --FÖR ATT SE VILKA SOM ÄR AKTIVA 
 ORDER BY r.room_NR
+GO
 
-SELECT * FROM booking 
+-- 8. De bokade rum som har fått rabatt.
+CREATE VIEW room_with_discount
+AS
+SELECT r.room_NR, d.discount_code, b.booking_id FROM Booking b
+INNER JOIN Rooms_booked rb
+ON b.booking_id = rb.room_belongs_to_booking_id
+INNER JOIN Room r 
+ON rb.room_id = r.room_NR 
+INNER JOIN room_bill rbi 
+ON rb.booked_rooms_id = rbi.booked_room_ID
+INNER JOIN discount d 
+ON rbi.room_discount_id = d.discount_id
+WHERE d.discount_code <> 'default';
+GO
+
+SELECT * FROM room_with_discount;
+GO
+
+-- 9. Meddelanden från vilket rum och vem som bokat.
+CREATE VIEW comment_room_guest
+AS
+SELECT m.comment, r.room_NR, c.last_name, c.first_name FROM Messages m
+INNER JOIN Booking b
+ON m.booking_ref = b.booking_id
+INNER JOIN Customer c 
+ON b.contact_id = c.ID
+INNER JOIN Rooms_booked rb
+ON b.booking_id = rb.room_belongs_to_booking_id
+INNER JOIN Room r 
+ON rb.room_id = r.room_NR
+GO
+
+SELECT * FROM comment_room_guest;
+GO
+
+-- 10. Vem i personalen som har tagit hand om en bokning.
+CREATE VIEW booking_handled_by_which_employee
+AS
+SELECT b.booking_id, c.ID AS customer_id, e.last_name, e.first_name, e.[position] FROM Booking b
+INNER JOIN Employees e
+ON b.employee_ref = e.employee_ID
+INNER JOIN Customer c 
+ON b.contact_id = c.ID;
+GO
+
+SELECT * FROM booking_handled_by_which_employee;
+GO
+
+-- 11. De fem incheckningar som ligger senast i tiden.
+CREATE VIEW top_5_check_in_ordered_by_latest
+AS
+SELECT TOP 5 (b.check_in_date), b.booking_id, c.last_name, c.first_name FROM Booking b
+INNER JOIN Customer c 
+ON b.booking_id = c.ID
+ORDER BY b.check_in_date DESC;
+GO
+
+SELECT * FROM top_5_check_in_ordered_by_latest;
+GO
+
+-- 12. De rum och den bokning som har beställt extrasäng.
+CREATE VIEW room_with_extra_bed
+AS
+SELECT rb.extra_bed, r.room_NR, b.booking_id FROM Rooms_booked rb
+INNER JOIN Booking b 
+ON rb.room_belongs_to_booking_id = b.booking_id
+INNER JOIN Room r 
+ON rb.room_id = r.room_NR
+WHERE rb.extra_bed <> 0;
+GO
+
+SELECT * FROM room_with_extra_bed;
+GO
