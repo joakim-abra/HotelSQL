@@ -548,8 +548,8 @@ insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (7, 4, '2021-12-06', '2021-12-10', 0,7, 1);
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (8, 3, '2021-09-23', '2021-09-26', 0,8, 1);
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (9, 2, '2022-04-05', '2022-04-07', 0,9, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (10, 2, '2022-04-06', '2022-04-08', 0,7, 0);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (11, 3, '2022-04-07', '2022-04-09',0, 10, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (10, 5, '2022-04-15', '2022-04-20', 0,7, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (11, 12, '2022-05-07', '2022-05-019',0, 10, 1);
 GO
 
 -- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00.
