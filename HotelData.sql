@@ -579,9 +579,6 @@ insert into guest_booking (customer_id, belongs_to_booking_id) values (17, 11);
 GO
 
 
-SELECT * FROM Rooms_booked
-
-
 
 --Rumsbokningar
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (1, 1, 0,1);
@@ -612,5 +609,32 @@ insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent',
 INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
 GO
 
+-- room_bill
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (5250, 1, 1, 1);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (12600, 2, 1, 2);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (27000, 3, 1, 3);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (15950, 4, 2, 4);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (4200, 5, 1, 5);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (16800, 6, 3, 6);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (9200, 7, 1, 7);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (4350, 8, 1, 8);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (2100, 9, 4, 9);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (1500, 10, 6, 10);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (4350, 11, 2, 11);
+INSERT INTO room_bill (amount, bill_id, room_discount_id, booked_room_ID) VALUES (2850, 12, 1, 12);
+GO
 
+-- total_booking_bill
 
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (5250, 1, 1);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (12600, 3, 2);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (27000, 3, 3);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (15950, 3, 4);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (4200, 4, 5);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (16800, 5, 6);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (9200, 2, 7);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (4350, 3, 8);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (2100, 5, 9);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (1500, 3, 10);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (7200, 3, 11);
+GO
