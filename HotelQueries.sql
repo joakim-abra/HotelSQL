@@ -326,11 +326,29 @@ insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (230, 13, 0,1);
 GO
 
+--Antal gäster
+
+CREATE TRIGGER number_of_guests
+ON Guest_booking
+FOR
+INSERT,UPDATE,DELETE
+AS
+    IF EXISTS(SELECT * FROM inserted) 
+        BEGIN  
+            UPDATE Booking  
+            SET number_of_guests = (SELECT COUNT(*) FROM Guest_booking gb WHERE gb.belongs_to_booking_id = (SELECT i.belongs_to_booking_id FROM inserted i))
+            WHERE booking_id = (SELECT i.belongs_to_booking_id FROM inserted i)
+        END
+    ELSE
+        BEGIN
+            UPDATE Booking
+            SET number_of_guests = (SELECT COUNT(*) FROM Guest_booking gb WHERE gb.belongs_to_booking_id = (SELECT d.belongs_to_booking_id FROM deleted d))
+            WHERE booking_id = (SELECT d.belongs_to_booking_id FROM inserted d)
+        END
+GO
 
 
-
-
-
+SELECT * FROM Booking
 ------------------------------VIEWS------------------------------
 
 -- 1.
