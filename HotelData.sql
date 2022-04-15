@@ -548,8 +548,8 @@ insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (7, 4, '2021-12-06', '2021-12-10', 0,7, 1);
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (8, 3, '2021-09-23', '2021-09-26', 0,8, 1);
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (9, 2, '2022-04-05', '2022-04-07', 0,9, 1);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (10, 5, '2022-04-15', '2022-04-20', 0,7, 0);
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (11, 12, '2022-05-07', '2022-05-019',0, 10, 1);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, late_arrival_timer , no_show, employee_ref, prepaid) values (10, 5, '2022-04-15', '2022-04-20',3, 0,7, 0);
+insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (11, 12, '2022-05-07', '2022-05-19',0, 10, 1);
 GO
 
 -- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00.
@@ -581,7 +581,7 @@ GO
 
 
 --Rumsbokningar
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (1, 1, 0,1);
+insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (1, 1, 1,1);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (2, 2, 0,1);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (102, 3, 0,1);
 insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (215, 4, 0,1);
@@ -596,16 +596,16 @@ insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_
 
 
 --Meddelanden
-insert into Messages (booking_ref, comment, date_) values (1, 'En extrasäng', '2021-11-06 13:48:48');
-insert into Messages (booking_ref, comment, date_) values (2, 'bla bla', '2021-05-18 21:18:20');
-insert into Messages (booking_ref, comment, date_) values (3, 'Checkar in efter 13.00', '2022-01-20 13:29:16');
-insert into Messages (booking_ref, comment, date_) values (4, 'Allergisk mot hundar', '2021-04-17 14:46:41');
-insert into Messages (booking_ref, comment, date_) values (5, 'Väckning 07.00', '2021-08-26 23:45:16');
-insert into Messages (booking_ref, comment, date_) values (6, 'Extra städning', '2021-06-26 09:06:25');
-insert into Messages (booking_ref, comment, date_) values (7, 'Vill ha två extrasängar', '2022-03-14 00:50:53');
-insert into Messages (booking_ref, comment, date_) values (8, 'Klagar på oljud', '2022-02-13 06:31:22');
-insert into Messages (booking_ref, comment, date_) values (9, 'Stör ej', '2022-03-12 21:03:10');
-insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent', '2021-04-19 16:58:14');
+insert into Messages (booking_ref, comment, date_) values (1, 'En extrasäng', '2021-05-18 13:48:48');
+insert into Messages (booking_ref, comment, date_) values (2, 'bla bla', '2021-12-11 21:18:20');
+insert into Messages (booking_ref, comment, date_) values (3, 'Checkar in efter 15.00', '2022-02-09 13:29:16');
+insert into Messages (booking_ref, comment, date_) values (4, 'Allergisk mot hundar', '2021-06-10 14:46:41');
+insert into Messages (booking_ref, comment, date_) values (5, 'Väckning 07.00', '2021-08-18 23:45:16');
+insert into Messages (booking_ref, comment, date_) values (6, 'Extra städning', '2021-03-14 09:06:25');
+insert into Messages (booking_ref, comment, date_) values (7, 'Vill ha en extrasäng', '2021-12-08 00:50:53');
+insert into Messages (booking_ref, comment, date_) values (8, 'Klagar på oljud', '2021-09-24 06:31:22');
+insert into Messages (booking_ref, comment, date_) values (9, 'Stör ej', '2022-04-06 21:03:10');
+insert into Messages (booking_ref, comment, date_) values (10, 'Anländer sent', '2021-04-15 16:58:14');
 INSERT INTO Messages (booking_ref, comment) VALUES (10, 'Vi behöver mer handdukar')
 GO
 
@@ -635,7 +635,7 @@ INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_i
 INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (9200, 2, 7);
 INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (4350, 3, 8);
 INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (2100, 5, 9);
-INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (1500, 3, 10);
+INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (1650, 3, 10);
 INSERT INTO total_booking_bill (total_amount, selected_payment_method, booking_id_bill) VALUES (7200, 3, 11);
 GO
 
@@ -650,5 +650,5 @@ INSERT INTO check_in_log (booking_id,log_check_in)VALUES (6,'2022-03-09 14:10')
 INSERT INTO check_in_log (booking_id,log_check_in)VALUES (7,'2021-12-06 14:01')
 INSERT INTO check_in_log (booking_id,log_check_in)VALUES (8,'2021-09-23 14:02')
 INSERT INTO check_in_log (booking_id,log_check_in)VALUES (9,'2022-04-05 14:31')
-INSERT INTO check_in_log (booking_id,log_check_in)VALUES (10,'2022-04-06 14:02')
-
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (10,'2022-04-15 17:02')
+INSERT INTO check_in_log (booking_id,log_check_in)VALUES (11,'2022-05-07 14:02')

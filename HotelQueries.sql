@@ -389,7 +389,7 @@ ON b.contact_id = c.ID
 WHERE check_out_date < GETDATE()
 GO
 
-SELECT * FROM owerview_done_bookings,
+SELECT * FROM owerview_done_bookings;
 GO
 
 -- 5.
@@ -436,14 +436,16 @@ GO
 -- EJ KLAR. ORDER BY GÅR INTE I VIEW
 -- 8. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
 
-SELECT b.booking_id, b.check_in_date, b.check_out_date, c.first_name, c.last_name, r.room_NR,r.[floor],rt.name
+--SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
+CREATE VIEW active_booking AS
+SELECT c.first_name Förnamn, c.last_name Efternamn, r.room_NR Rum,r.[floor] Våning,rt.name Rumstyp,b.booking_id, b.check_in_date, b.check_out_date 
 FROM Customer c 
 JOIN Guest_booking gb ON gb.customer_id = c.ID
-JOIN Booking b ON gb.id = b.guest_booking_id
-JOIN Rooms_booked rb ON rb.booked_rooms_id = b.rooms_booked_id
+JOIN Booking b ON gb.belongs_to_booking_id = b.booking_id
+JOIN Rooms_booked rb ON rb.booked_rooms_id = b.booking_id
 JOIN room r ON r.room_NR = rb.room_id
 JOIN Room_type rt ON rt.room_type_id = r.room_room_type_id
---WHERE b.check_out_date>GETDATE() --FÖR ATT SE VILKA SOM ÄR AKTIVA 
+WHERE b.check_out_date>GETDATE() AND b.check_in_date <GETDATE()
 ORDER BY r.room_NR
 GO
 
