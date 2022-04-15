@@ -127,10 +127,8 @@ GO
 --MEDDELANDEN
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
-    customer_id INT FOREIGN KEY REFERENCES Customer(ID),
     comment NVARCHAR(500),
     employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
-    booking_ref INT FOREIGN KEY REFERENCES booking(booking_id),
     date_ DATETIME DEFAULT GETDATE()
 
 );
