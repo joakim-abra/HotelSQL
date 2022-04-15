@@ -169,14 +169,6 @@ select * from Feedback
 GO
 
 
-CREATE PROCEDURE delete_review @feedback_id INT
-AS
-DELETE FROM Feedback WHERE feedback_id = @feedback_id;
-GO
-
-EXECUTE delete_review @feedback_id = 22;
-GO
-
 --SKAPAR FAKTURA FÖR ETT RUM
 CREATE PROCEDURE create_room_bill (@Room_NR INT, @discount_id INT, @rooms_booking_id INT)
 AS
@@ -190,7 +182,7 @@ GO
 
 
 --SKAPAR TOTAL RÄKNING FÖR BOKNING
-CREATE PROCEDURE create_total_bill_(@booking_id INT, @payment_method_id INT, @reference_number INT = NULL)
+CREATE PROCEDURE create_total_bill_(@booking_id INT, @payment_method_id INT, @reference_number NVARCHAR(25) = NULL)
 AS
 DECLARE @totalsum DECIMAL = 
     (SELECT SUM(amount) FROM room_bill rb
@@ -227,7 +219,7 @@ AS
                     BEGIN
                         PRINT 'Kan inte avboka en incheckad gäst!'
                     END    
-    END
+    END;
 GO
 
 
@@ -339,12 +331,12 @@ GO
 
 
 
------------------------------------------------------------- VIEWS
+------------------------------VIEWS------------------------------
 
 -- 1.
 CREATE VIEW room_overview
 AS
-SELECT r.room_NR, rt.name, r.floor, rt.nr_of_beds, rt.balcony, rt.price, rt.[description] FROM Room r 
+SELECT r.room_NR Rumsnummer, rt.name Rumstyp, r.floor Våning, rt.nr_of_beds 'Antal sängplatser', rt.balcony 'Balkonger', r.room_price 'Pris' FROM Room r 
 INNER JOIN Room_type rt ON R.room_room_type_id = rt.room_type_id
 GO
 
@@ -354,7 +346,7 @@ GO
 -- 2.
 CREATE VIEW Bokings_person_och_rum
 AS
-SELECT c.first_name, c.last_name, ro.room_NR, b.booking_id
+SELECT c.first_name Förnamn, c.last_name Efternamn, ro.room_NR Rum, b.booking_id Bokning
 FROM Customer AS c
 INNER JOIN booking AS b
 ON b.contact_id = c.ID
@@ -370,7 +362,8 @@ GO
 -- 3.
 CREATE view user_payment
 AS
-SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, pm.method_name FROM Customer c
+SELECT c.first_name Förnamn, c.last_name Efternamn, c.street_address Adress, c.postal_code Postkod, c.city Stad,
+ tbb.total_amount Summa, tbb.reference_number Referensnummer, pm.method_name Betalningsmetdo FROM Customer c
 INNER JOIN Booking b ON c.ID = b.contact_id
 LEFT JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
 LEFT JOIN payment_methods pm ON tbb.selected_payment_method = pm.method_id
@@ -433,21 +426,25 @@ GO
 
 
 
--- EJ KLAR. ORDER BY GÅR INTE I VIEW
--- 8. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
 
---SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
+-- 8. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
+--visar förmodligen inget om GETDATE villkoret används för att begränsa tidsspannet (såvida inte någon bokning faller in) pga
+--begränsat antal inlagda bokningar
 CREATE VIEW active_booking AS
-SELECT c.first_name Förnamn, c.last_name Efternamn, r.room_NR Rum,r.[floor] Våning,rt.name Rumstyp,b.booking_id, b.check_in_date, b.check_out_date 
+SELECT c.first_name Förnamn, c.last_name Efternamn, r.room_NR Rum,r.[floor] Våning,rt.name Rumstyp,b.booking_id 'Boknings-ID', 
+b.check_in_date Incheckning, b.check_out_date Utcheckning 
 FROM Customer c 
 JOIN Guest_booking gb ON gb.customer_id = c.ID
 JOIN Booking b ON gb.belongs_to_booking_id = b.booking_id
-JOIN Rooms_booked rb ON rb.booked_rooms_id = b.booking_id
+JOIN Rooms_booked rb ON rb.room_belongs_to_booking_id = b.booking_id
 JOIN room r ON r.room_NR = rb.room_id
 JOIN Room_type rt ON rt.room_type_id = r.room_room_type_id
-WHERE b.check_out_date>GETDATE() AND b.check_in_date <GETDATE()
-ORDER BY r.room_NR
+WHERE b.check_out_date> '2022-04-06' /*GETDATE()*/ AND b.check_in_date < '2022-04-06' /*GETDATE()*/;
 GO
+
+SELECT * FROM active_booking;
+GO
+
 
 -- 9. De bokade rum som har fått rabatt.
 CREATE VIEW room_with_discount
@@ -540,7 +537,7 @@ GO
 --  15. Visar förskottsbetalda rum (BIT) och betalningsmetod
 CREATE VIEW prepaid_rooms_and_payment_type
 AS
-SELECT r.room_NR, b.prepaid, pm.method_name FROM Room r
+SELECT r.room_NR, b.booking_id, b.prepaid, pm.method_name FROM Room r
 INNER JOIN Rooms_booked rb 
 ON r.room_NR = rb.room_id
 INNER JOIN Booking b 
