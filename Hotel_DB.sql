@@ -119,7 +119,7 @@ CREATE TABLE total_booking_bill
     id INT IDENTITY PRIMARY KEY,
     total_amount DECIMAL,
     selected_payment_method INT FOREIGN KEY REFERENCES payment_methods(method_id),
-    reference_number INT, -- fakturanummer, kreditkortsnummer o.s.v. Null om t.ex. kontantbetalning har valts.
+    reference_number NVARCHAR(25), -- fakturanummer, kreditkortsnummer o.s.v. Null om t.ex. kontantbetalning har valts.
     booking_id_bill INT  FOREIGN KEY REFERENCES Booking(booking_id)
 );
 GO
@@ -127,8 +127,8 @@ GO
 --MEDDELANDEN
 CREATE TABLE Messages(
     message_id INT IDENTITY PRIMARY KEY,
+    booking_ref INT FOREIGN KEY REFERENCES Booking (booking_id),
     comment NVARCHAR(500),
-    employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
     date_ DATETIME DEFAULT GETDATE()
 
 );
