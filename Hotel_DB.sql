@@ -73,7 +73,8 @@ CREATE TABLE Booking(
     late_arrival_timer INT,
     no_show BIT NOT NULL DEFAULT 0,
     employee_ref INT FOREIGN KEY REFERENCES Employees(employee_ID),
-    prepaid BIT NOT NULL DEFAULT 0
+    prepaid BIT NOT NULL DEFAULT 0,
+    number_of_guests INT DEFAULT 1
 );
 GO
 
