@@ -4,7 +4,7 @@ GO
 ---------------------------------------------- Konton
 
 -- Admin
--- db_owner representerar en administratör. Om det är rätt val är oklart, då permissions är ett djupt ämne.
+-- db_owner representerar en administratör.
 CREATE LOGIN hotel_admin WITH PASSWORD = 'adminPass01';
 GO
 
@@ -41,22 +41,11 @@ GO
 GRANT EXECUTE ON OBJECT::write_review TO hotel_guest;
 GO
 
-DROP USER hotel_admin;
-DROP LOGIN hotel_admin
-GO
-DROP USER hotel_staff;
-DROP LOGIN hotel_staff
-GO
-DROP USER hotel_guest;
-DROP LOGIN hotel_guest
-GO
-
-
 
 ----------------------- PROCEDURES -----------------------
 
 
----Sök efter kund och, mata in datum att kontrollera på status på (för att slippa behöva lägga in/ändra om i data för incheckningar och bokningar/bokningstider)
+--- 1. Sök efter kund och, mata in datum att kontrollera på status på (för att slippa behöva lägga in/ändra om i data för incheckningar och bokningar/bokningstider)
 --anges inget datum sätts det till dagens varav träffar kommer ha status utcheckade, såvida inte fler bokningar med framtida/aktuella datum skapats.
 --(Kräver att klockslag efter loggad incheckning anges för kontroll för samma dag)
 CREATE PROCEDURE find_customer (@search NVARCHAR(4), @dateToCheck DATETIME = NULL)
@@ -86,22 +75,7 @@ AS
         END    
 GO
 
-EXEC find_customer 'er'
-GO
-EXEC find_customer 'er', '2022-03-09'
-GO
-
-EXEC find_customer 'er', '2022-03-09 14:15'
-GO
-
-
-
-
-
-
-
-
--- Visar hotellets snittbetyg och gästers feedback.
+-- 2. Visar hotellets snittbetyg och gästers feedback.
 CREATE PROCEDURE display_feedback_and_average_rating
 AS
 DECLARE @counter INT
@@ -132,15 +106,7 @@ BEGIN
 END;
 GO
 
-EXECUTE display_feedback_and_average_rating;
-GO
-
-drop PROCEDURE display_feedback_and_average_rating;
-GO
-
--- Feedback rad 11 saknar reviewer
-
-
+-- 3. Ger en gäst möjlighet att skriva en utvärdering och betygsätta hotellet.
 CREATE PROCEDURE write_review @reviewer NVARCHAR(50), @comment NVARCHAR(500), @score INT 
 AS 
     IF (@score < 1 OR @score > 5)
@@ -153,36 +119,20 @@ AS
     END
 GO
 
-
---EXECUTE write_review @reviewer = 'namn', @comment = 'kommentar', @score = betyg 1- 5 som INT;
-EXECUTE write_review @reviewer = 'A reviewer', @comment = 'A comment', @score = 5;
-GO
-
-DROP PROCEDURE write_review;
-GO
-
-DELETE FROM Feedback
-WHERE feedback_id = 1023;
-GO
-
-select * from Feedback
-GO
-
-
---SKAPAR FAKTURA FÖR ETT RUM
+-- 4. SKAPAR FAKTURA FÖR ETT RUM
 CREATE PROCEDURE create_room_bill (@Room_NR INT, @discount_id INT, @rooms_booking_id INT)
 AS
 DECLARE @amount DECIMAL
+DECLARE @discount DECIMAL
 SET @amount = (SELECT r.room_price FROM Room r WHERE @Room_NR = r.room_NR)
-SET @amount = @amount - (@amount*(SELECT d.discount_amount FROM Discount d WHERE @discount_id = d.discount_id))
-SET @amount = @amount *(SELECT b.num_of_night FROM booking b WHERE booking_id = (SELECT rb.room_belongs_to_booking_id FROM Rooms_booked rb 
+SET @discount = @amount * (SELECT d.discount_amount FROM Discount d WHERE @discount_id = d.discount_id)SET @amount = @amount - @discount
+SET @amount = @amount *(SELECT b.num_of_night FROM booking b WHERE booking_id = (SELECT rb.room_belongs_to_booking_id FROM Rooms_booked rb
 WHERE @Room_NR = rb.room_id AND rb.booked_rooms_id=@rooms_booking_id))
 INSERT INTO room_bill (amount,room_discount_id,booked_room_ID) VALUES (@amount, @discount_id, @rooms_booking_id)
 GO
 
-
---SKAPAR TOTAL RÄKNING FÖR BOKNING
-CREATE PROCEDURE create_total_bill_(@booking_id INT, @payment_method_id INT, @reference_number NVARCHAR(25) = NULL)
+-- 5. SKAPAR TOTAL RÄKNING FÖR BOKNING
+CREATE PROCEDURE create_total_bill_(@booking_id INT, @payment_method_id INT, @reference_number INT = NULL)
 AS
 DECLARE @totalsum DECIMAL = 
     (SELECT SUM(amount) FROM room_bill rb
@@ -201,10 +151,7 @@ INSERT INTO total_booking_bill(total_amount,
 );
 GO
 
-
-
-
---PROCEDUR FÖR ATT SÄTTA NO_SHOW/"AVBOKNING" (egentligen gör att triggern som kollar rum och datum släpper igenom ny rumsbokning)
+-- 6. PROCEDUR FÖR ATT SÄTTA NO_SHOW/"AVBOKNING" (egentligen gör att triggern som kollar rum och datum släpper igenom ny rumsbokning)
 CREATE PROCEDURE SET_no_show (@booking_id INT)
 AS
     BEGIN
@@ -219,152 +166,52 @@ AS
                     BEGIN
                         PRINT 'Kan inte avboka en incheckad gäst!'
                     END    
-    END;
+    END
 GO
 
-
---INCHECKNING
+-- 7. INCHECKNING
 CREATE PROCEDURE Check_In (@booking_id INT)
 AS
     DECLARE @now DATETIME = GETDATE() 
-    IF(@Now - (
-    SELECT b1.check_out_date FROM booking b1 JOIN Rooms_booked rb ON b1.booking_id = rb.room_belongs_to_booking_id
-    WHERE rb.room_id = ANY (SELECT rb1.room_id FROM Rooms_booked rb1 WHERE rb1.room_belongs_to_booking_id = 12) AND b1.booking_id<>@booking_id)>=0)
+    IF EXISTS(SELECT rb.room_id FROM Rooms_booked rb WHERE rb.room_belongs_to_booking_id = @booking_id AND rb.room_id IN 
+        (SELECT rb2.room_id FROM Rooms_booked rb2 WHERE rb2.room_belongs_to_booking_id <> @booking_id))
         BEGIN
-            INSERT INTO check_in_log (booking_id, log_check_in) VALUES (
-            @booking_id, @now
-        )
-        END 
+            IF(@Now - (
+            SELECT b1.check_out_date FROM booking b1 JOIN Rooms_booked rb ON b1.booking_id = rb.room_belongs_to_booking_id
+            WHERE rb.room_id = ANY (SELECT rb1.room_id FROM Rooms_booked rb1 WHERE rb1.room_belongs_to_booking_id = @booking_id) AND b1.booking_id<>@booking_id)>=0)
+                BEGIN
+                INSERT INTO check_in_log (booking_id, log_check_in) VALUES (
+                @booking_id, @now)
+                END 
+                ELSE
+                    BEGIN
+                        PRINT 'KAN ej checka in ännu, rum ej redo'
+                    END    
+        END            
     ELSE
         BEGIN
-            PRINT 'KAN ej checka in ännu, rum ej redo'
-        END    
+                        INSERT INTO check_in_log (booking_id, log_check_in) VALUES (@booking_id, @now)
+         END    
+
 GO    
 
-SELECT * FROM Booking WHERE booking_id = 11
-GO
-
-
------------------ TRIGGERS-----------------
-
-
---SKAPAR DATA FÖR LATE_ARRIVAL_TIMER I BOOKING GENOM INSERT TILL CHECK-LOG (INCHECKNING)
-CREATE TRIGGER late_arrival
-ON check_in_log
-FOR INSERT,UPDATE, DELETE
-AS
-BEGIN
-    IF EXISTS(SELECT * FROM inserted)
-    BEGIN
-    IF ((SELECT log_check_in FROM inserted)-(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))>0)
-        BEGIN
-            UPDATE Booking
-            SET late_arrival_timer = (DATEDIFF (hour, (SELECT check_in_date FROM booking WHERE booking_id = 
-                                    (SELECT i.booking_id FROM inserted i)),(SELECT log_check_in FROM inserted)))
-            WHERE booking_id = (SELECT i.booking_id FROM inserted i)
-        END
-    END
-    ELSE
-        BEGIN
-            IF EXISTS(SELECT * FROM deleted)
-            BEGIN
-                UPDATE Booking
-                SET late_arrival_timer = 0 WHERE booking_id = (SELECT d.booking_id FROM deleted d)
-            END    
-        END
-END   
-GO   
-
-INSERT INTO check_in_log (booking_id,log_check_in) VALUES (11, '2022-04-07 14:05')
-GO
-
-UPDATE check_in_log
-SET log_check_in = '2022-04-07 14:05'
-WHERE booking_id = 11
-
-SELECT * FROM Booking WHERE booking_id = 11
-GO
-
--- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00. (För att slippa skriva in detta)
-CREATE TRIGGER check_in_out_time_default
-ON booking
-FOR INSERT
-AS
-    BEGIN
-        UPDATE Booking
-        SET check_in_date = DATEADD(hour, 14, check_in_date), 
-            check_out_date = DATEADD(hour, 11, check_out_date)  
-         WHERE booking_id = (SELECT booking_id FROM inserted)
-    END
-GO
 
 
 
---TRIGGER FÖR ATT FÖRHINDRA DUBBELBOKNING AV RUM
-CREATE TRIGGER room_check
-ON rooms_booked
-FOR INSERT, UPDATE
-AS IF EXISTS((SELECT i.room_id FROM inserted i WHERE i.room_id IN
-            (SELECT rb.room_id FROM Rooms_booked rb
-            JOIN booking b 
-            ON b.booking_id = rb.room_belongs_to_booking_id
-            WHERE b.check_out_date> (SELECT b2.check_in_date FROM Booking b2 WHERE b2.booking_id = i.room_belongs_to_booking_id) 
-            AND b.booking_id <> i.room_belongs_to_booking_id)))
-                BEGIN
-                    ROLLBACK TRANSACTION
-                    PRINT 'RUMMET ÄR UPPTAGET'
-                END
-GO
 
-SELECT * FROM Rooms_booked
-
-SELECT * FROM booking
-LEFT JOIN Rooms_booked ON booking_id = room_belongs_to_booking_id
-WHERE Rooms_booked.room_id = 230
-
-insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (16, 4, '2022-04-08', '2022-04-13',0, 10, 1);
-insert into rooms_booked (room_id, room_belongs_to_booking_id, extra_bed,number_of_guests) values (230, 13, 0,1);
-GO
-
---Antal gäster
-
-CREATE TRIGGER number_of_guests
-ON Guest_booking
-FOR
-INSERT,UPDATE,DELETE
-AS
-    IF EXISTS(SELECT * FROM inserted) 
-        BEGIN  
-            UPDATE Booking  
-            SET number_of_guests = (SELECT COUNT(*) FROM Guest_booking gb WHERE gb.belongs_to_booking_id = (SELECT i.belongs_to_booking_id FROM inserted i))
-            WHERE booking_id = (SELECT i.belongs_to_booking_id FROM inserted i)
-        END
-    ELSE
-        BEGIN
-            UPDATE Booking
-            SET number_of_guests = (SELECT COUNT(*) FROM Guest_booking gb WHERE gb.belongs_to_booking_id = (SELECT d.belongs_to_booking_id FROM deleted d))
-            WHERE booking_id = (SELECT d.belongs_to_booking_id FROM inserted d)
-        END
-GO
-
-
-SELECT * FROM Booking
-------------------------------VIEWS------------------------------
+------------------------------------------------------------ VIEWS
 
 -- 1.
 CREATE VIEW room_overview
 AS
-SELECT r.room_NR Rumsnummer, rt.name Rumstyp, r.floor Våning, rt.nr_of_beds 'Antal sängplatser', rt.balcony 'Balkonger', r.room_price 'Pris' FROM Room r 
+SELECT r.room_NR AS Rumsnummer, rt.name AS Rumstyp, r.floor AS Våning, rt.nr_of_beds AS 'Antal sängar', rt.balcony AS Balkong, rt.price AS Pris FROM Room r 
 INNER JOIN Room_type rt ON R.room_room_type_id = rt.room_type_id
-GO
-
-select * from room_overview;
 GO
 
 -- 2.
 CREATE VIEW Bokings_person_och_rum
 AS
-SELECT c.first_name Förnamn, c.last_name Efternamn, ro.room_NR Rum, b.booking_id Bokning
+SELECT c.first_name, c.last_name, ro.room_NR, b.booking_id
 FROM Customer AS c
 INNER JOIN booking AS b
 ON b.contact_id = c.ID
@@ -374,20 +221,14 @@ INNER JOIN Room AS ro
 ON r.room_id = ro.room_NR
 GO
 
-SELECT * FROM Bokings_person_och_rum;
-GO
 
 -- 3.
 CREATE view user_payment
 AS
-SELECT c.first_name Förnamn, c.last_name Efternamn, c.street_address Adress, c.postal_code Postkod, c.city Stad,
- tbb.total_amount Summa, tbb.reference_number Referensnummer, pm.method_name Betalningsmetdo FROM Customer c
+SELECT c.first_name, c.last_name, c.street_address, c.postal_code, c.city, tbb.total_amount, tbb.reference_number, pm.method_name AS payment_method FROM Customer c
 INNER JOIN Booking b ON c.ID = b.contact_id
 LEFT JOIN total_booking_bill tbb ON b.booking_id = tbb.booking_id_bill
 LEFT JOIN payment_methods pm ON tbb.selected_payment_method = pm.method_id
-GO
-
-SELECT * FROM user_payment;
 GO
 
 
@@ -400,9 +241,6 @@ ON b.contact_id = c.ID
 WHERE check_out_date < GETDATE()
 GO
 
-SELECT * FROM owerview_done_bookings;
-GO
-
 -- 5.
 CREATE VIEW owerview_going_bookings AS
 SELECT b.check_in_date, b.check_out_date, c.first_name, c.last_name, c.phone_number
@@ -412,8 +250,6 @@ ON b.contact_id = c.ID
 WHERE check_out_date > GETDATE()
 GO
 
-SELECT * FROM owerview_going_bookings;
-GO
 
 -- 6. Vilken bokning som har vilka gäster.
 CREATE VIEW guests_part_of_booking
@@ -426,8 +262,6 @@ ON gb.customer_id = c.ID
 WHERE booking_id IS NOT NULL;
 GO
 
-SELECT * FROM guests_part_of_booking;
-GO
 
 -- 7. Vilken bokning som har bokat vilka rum och av vem.
 CREATE VIEW rooms_booked_by
@@ -439,28 +273,22 @@ INNER JOIN Customer c
 ON b.contact_id = c.ID;
 GO
 
-SELECT * FROM rooms_booked_by;
-GO
 
-
-
-
--- 8. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR
---visar förmodligen inget om GETDATE villkoret används för att begränsa tidsspannet (såvida inte någon bokning faller in) pga
---begränsat antal inlagda bokningar
-CREATE VIEW active_booking AS
-SELECT c.first_name Förnamn, c.last_name Efternamn, r.room_NR Rum,r.[floor] Våning,rt.name Rumstyp,b.booking_id 'Boknings-ID', 
-b.check_in_date Incheckning, b.check_out_date Utcheckning 
-FROM Customer c 
-JOIN Guest_booking gb ON gb.customer_id = c.ID
-JOIN Booking b ON gb.belongs_to_booking_id = b.booking_id
-JOIN Rooms_booked rb ON rb.room_belongs_to_booking_id = b.booking_id
-JOIN room r ON r.room_NR = rb.room_id
-JOIN Room_type rt ON rt.room_type_id = r.room_room_type_id
-WHERE b.check_out_date> '2022-04-06' /*GETDATE()*/ AND b.check_in_date < '2022-04-06' /*GETDATE()*/;
-GO
-
-SELECT * FROM active_booking;
+-- 8. SE VILKA GÄSTER SOM ÄR BOKADE I VILKA RUM OCH NÄR--visar förmodligen inget om GETDATE villkoret används för att 
+-- begränsa tidsspannet (såvida inte någon bokning faller in) pga--begränsat antal inlagda bokningar
+CREATE VIEW active_booking AS SELECT c.first_name Förnamn, c.last_name Efternamn, r.room_NR Rum,r.[floor] Våning,
+rt.name Rumstyp,b.booking_id 'Boknings-ID', b.check_in_date Incheckning, b.check_out_date Utcheckning FROM Customer c 
+JOIN Guest_booking gb 
+ON gb.customer_id = c.ID
+JOIN Booking b 
+ON gb.belongs_to_booking_id = b.booking_id
+JOIN Rooms_booked rb 
+ON rb.room_belongs_to_booking_id = b.booking_id
+JOIN room r 
+ON r.room_NR = rb.room_id
+JOIN Room_type rt 
+ON rt.room_type_id = r.room_room_type_id
+WHERE b.check_out_date> '2022-04-06' /*GETDATE()*/ AND b.check_in_date < '2022-04-06' /*GETDATE()*/;
 GO
 
 
@@ -479,8 +307,6 @@ ON rbi.room_discount_id = d.discount_id
 WHERE d.discount_code <> 'default';
 GO
 
-SELECT * FROM room_with_discount;
-GO
 
 -- 10. Meddelanden från vilket rum och vem som bokat.
 CREATE VIEW comment_room_guest
@@ -496,8 +322,6 @@ INNER JOIN Room r
 ON rb.room_id = r.room_NR;
 GO
 
-SELECT * FROM comment_room_guest;
-GO
 
 -- 11. Vem i personalen som har tagit hand om en bokning.
 CREATE VIEW booking_handled_by_which_employee
@@ -509,8 +333,6 @@ INNER JOIN Customer c
 ON b.contact_id = c.ID;
 GO
 
-SELECT * FROM booking_handled_by_which_employee;
-GO
 
 -- 12. De fem incheckningar som ligger senast i tiden.
 CREATE VIEW top_5_check_in_ordered_by_latest
@@ -521,8 +343,7 @@ ON b.booking_id = c.ID
 ORDER BY b.check_in_date DESC;
 GO
 
-SELECT * FROM top_5_check_in_ordered_by_latest;
-GO
+
 
 -- 13. De rum och den bokning som har beställt extrasäng.
 CREATE VIEW room_with_extra_bed
@@ -535,8 +356,6 @@ ON rb.room_id = r.room_NR
 WHERE rb.extra_bed <> 0;
 GO
 
-SELECT * FROM room_with_extra_bed;
-GO
 
 -- 14. Rum med kommande bokning.
 CREATE VIEW future_booked_room
@@ -549,13 +368,11 @@ ON rb.room_belongs_to_booking_id = b.booking_id
 WHERE b.check_in_date > GETDATE();
 GO
 
-select * from future_booked_room;
-GO
 
 --  15. Visar förskottsbetalda rum (BIT) och betalningsmetod
 CREATE VIEW prepaid_rooms_and_payment_type
 AS
-SELECT r.room_NR, b.booking_id, b.prepaid, pm.method_name FROM Room r
+SELECT r.room_NR, b.prepaid, pm.method_name  AS payment_method FROM Room r
 INNER JOIN Rooms_booked rb 
 ON r.room_NR = rb.room_id
 INNER JOIN Booking b 
@@ -567,5 +384,3 @@ ON tb.selected_payment_method = pm.method_id
 WHERE prepaid <> 0;
 GO
 
-SELECT * FROM prepaid_rooms_and_payment_type;
-GO

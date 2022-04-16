@@ -100,7 +100,7 @@ GO
 CREATE TABLE discount(
     discount_id INT IDENTITY PRIMARY KEY,
     discount_code NVARCHAR(30),
-    discount_amount DECIMAL
+    discount_amount DECIMAL (2, 1)
 );
 GO
 

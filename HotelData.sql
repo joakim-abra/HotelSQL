@@ -2,6 +2,86 @@ USE Hotel;
 GO
 
 
+----------------- TRIGGERS-----------------
+
+
+--SKAPAR DATA FÖR LATE_ARRIVAL_TIMER I BOOKING GENOM INSERT TILL CHECK-LOG (INCHECKNING)
+CREATE TRIGGER late_arrival
+ON check_in_log
+FOR INSERT,UPDATE, DELETE
+AS
+BEGIN
+    IF EXISTS(SELECT * FROM inserted)
+    BEGIN
+    IF ((SELECT log_check_in FROM inserted)-(SELECT check_in_date FROM booking WHERE booking_id = (SELECT i.booking_id FROM inserted i))>0)
+        BEGIN
+            UPDATE Booking
+            SET late_arrival_timer = (DATEDIFF (hour, (SELECT check_in_date FROM booking WHERE booking_id = 
+                                    (SELECT i.booking_id FROM inserted i)),(SELECT log_check_in FROM inserted)))
+            WHERE booking_id = (SELECT i.booking_id FROM inserted i)
+        END
+    END
+    ELSE
+        BEGIN
+            IF EXISTS(SELECT * FROM deleted)
+            BEGIN
+                UPDATE Booking
+                SET late_arrival_timer = 0 WHERE booking_id = (SELECT d.booking_id FROM deleted d)
+            END    
+        END
+END   
+GO   
+
+-- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00. (För att slippa skriva in detta)
+CREATE TRIGGER check_in_out_time_default
+ON booking
+FOR INSERT
+AS
+    BEGIN
+        UPDATE Booking
+        SET check_in_date = DATEADD(hour, 14, check_in_date), 
+            check_out_date = DATEADD(hour, 11, check_out_date)  
+         WHERE booking_id = (SELECT booking_id FROM inserted)
+    END
+GO
+
+--TRIGGER FÖR ATT FÖRHINDRA DUBBELBOKNING AV RUM
+CREATE TRIGGER room_check
+ON rooms_booked
+FOR INSERT, UPDATE
+AS IF EXISTS((SELECT i.room_id FROM inserted i WHERE i.room_id IN
+            (SELECT rb.room_id FROM Rooms_booked rb
+            JOIN booking b 
+            ON b.booking_id = rb.room_belongs_to_booking_id
+            WHERE b.check_out_date> (SELECT b2.check_in_date FROM Booking b2 WHERE b2.booking_id = i.room_belongs_to_booking_id AND b2.booking_id <> b.booking_id))))
+                BEGIN
+                    ROLLBACK TRANSACTION
+                    PRINT 'RUMMET ÄR UPPTAGET'
+                END
+GO
+
+--Antal gäster
+CREATE TRIGGER number_of_guests
+ON Guest_booking
+FOR
+INSERT,UPDATE,DELETE
+AS
+    IF EXISTS(SELECT * FROM inserted) 
+        BEGIN  
+            UPDATE Booking  
+            SET number_of_guests = (SELECT COUNT(*) FROM Guest_booking gb WHERE gb.belongs_to_booking_id = (SELECT i.belongs_to_booking_id FROM inserted i))
+            WHERE booking_id = (SELECT i.belongs_to_booking_id FROM inserted i)
+        END
+    ELSE
+        BEGIN
+            UPDATE Booking
+            SET number_of_guests = (SELECT COUNT(*) FROM Guest_booking gb WHERE gb.belongs_to_booking_id = (SELECT d.belongs_to_booking_id FROM deleted d))
+            WHERE booking_id = (SELECT d.belongs_to_booking_id FROM inserted d)
+        END
+GO
+
+----------------------------------- DATA
+
 --ROOM TYPES 1-3
 INSERT INTO Room_type VALUES
 ('Enkelrum',1,0,750, 'Vår mest prisvärda rum för dig som reser ensam'), ('Dubbelrum',2,1,1250,'Dubbelrum med två sovplatser och en balkong'), 
@@ -552,11 +632,6 @@ insert into booking (contact_id, num_of_night, check_in_date, check_out_date, la
 insert into booking (contact_id, num_of_night, check_in_date, check_out_date, no_show, employee_ref, prepaid) values (11, 12, '2022-05-07', '2022-05-19',0, 10, 1);
 GO
 
--- SÄTTER STANDARD INCHECKNINGSTID TILL 11:00 OCH UTCHECKNINGSTID TILL 14:00.
-UPDATE Booking
-SET check_in_date = DATEADD(hour, 14, check_in_date) 
-, check_out_date = DATEADD(hour, 11, check_out_date)  
-GO
 
 --Bokade gäster
 insert into guest_booking (customer_id, belongs_to_booking_id) values (1, 1);
@@ -651,4 +726,4 @@ INSERT INTO check_in_log (booking_id,log_check_in)VALUES (7,'2021-12-06 14:01')
 INSERT INTO check_in_log (booking_id,log_check_in)VALUES (8,'2021-09-23 14:02')
 INSERT INTO check_in_log (booking_id,log_check_in)VALUES (9,'2022-04-05 14:31')
 INSERT INTO check_in_log (booking_id,log_check_in)VALUES (10,'2022-04-15 17:02')
-INSERT INTO check_in_log (booking_id,log_check_in)VALUES (11,'2022-05-07 14:02')
+--INSERT INTO check_in_log (booking_id,log_check_in)VALUES (11,'2022-05-07 14:02') Borttagen för att kunna testa No_show.
